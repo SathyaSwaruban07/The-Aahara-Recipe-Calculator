@@ -1,0 +1,124 @@
+{
+  "app": {
+    "brand": "Recipe Proportions Calculator",
+    "tagline": "Scale kitchen recipes with precision",
+    "subtitle": "Enter a dish once. Recalculate for any headcount in seconds."
+  },
+  "nav": {
+    "recipes": "Recipes",
+    "add": "Add recipe",
+    "language": "Language",
+    "back": "Back to recipes",
+    "fontSize": "Font size",
+    "fontIncrease": "Increase font size",
+    "fontDecrease": "Decrease font size"
+  },
+  "admin": {
+    "label": "Admin mode",
+    "labelShort": "Admin",
+    "loginTitle": "Admin login",
+    "username": "Username",
+    "password": "Password",
+    "unlock": "Unlock",
+    "invalidCredentials": "Invalid username or password",
+    "lockedHint": "Admin mode required"
+  },
+
+  "list": {
+    "title": "Kitchen recipes",
+    "empty": "No recipes yet. Add your first dish.",
+    "emptySection": "No recipes in this section.",
+    "emptySearch": "No recipes match your search.",
+    "servings": "Base servings",
+    "ingredients": "ingredients",
+    "scale": "Scale",
+    "glance": "Quick glance",
+    "speak": "Read aloud",
+    "speakStop": "Stop reading",
+    "speakUnsupported": "Read aloud is not supported in this browser",
+    "speakFailed": "Could not play audio. Check your connection and try again.",
+    "speakNoTamilVoice": "Tamil audio needs the API server running (npm run dev). Your PC has no built-in Tamil voice — online Tamil speech is used instead. Restart the server and try again.",
+    "speakNoHindiVoice": "Hindi audio needs the API server running (npm run dev). Your PC has no built-in Hindi voice — online Hindi speech is used instead. Restart the server and try again.",
+    "speakIngredients": "Ingredients",
+    "glancePortions": "Ingredients for {{count}} people",
+    "speakPortions": "These amounts are for {{count}} people",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search recipes",
+    "searchPlaceholder": "Search in English, Tamil, or Hindi…",
+    "searchClear": "Clear search",
+    "voiceSearch": "Voice search",
+    "voiceSearchListening": "Listening… tap to stop",
+    "voiceSearchUnsupported": "Voice search is not supported in this browser",
+    "filter": "Filter",
+    "filterByCategory": "Categories",
+    "filterReset": "Show all categories"
+  },
+  "categories": {
+    "Breakfast": "Breakfast",
+    "Lunch": "Lunch",
+    "Dinner": "Dinner"
+  },
+  "scale": {
+    "title": "Scale proportions",
+    "from": "Recipe for",
+    "people": "people",
+    "to": "Calculate for",
+    "factor": "Scale factor",
+    "ingredient": "Ingredient",
+    "original": "Original",
+    "scaled": "Scaled amount",
+    "back": "Back to recipes"
+  },
+  "form": {
+    "titleCreate": "Add a recipe",
+    "titleEdit": "Edit recipe",
+    "summary": "Quick glance",
+    "summaryUntitled": "Untitled recipe",
+    "summaryEmpty": "Add ingredients below to see them here.",
+    "name": "Recipe name",
+    "namePlaceholder": "e.g. Butter chicken",
+    "category": "Category",
+    "baseServings": "This recipe serves",
+    "baseServingsPlaceholder": "20",
+    "soak": "Soak",
+    "soakDuration": "Duration",
+    "soakUnit": "Unit",
+    "soakUnits": {
+      "minutes": "Minutes",
+      "hours": "Hours"
+    },
+    "notes": "Notes",
+    "notesPlaceholder": "Optional kitchen tips",
+    "ingredients": "Ingredients",
+    "addIngredient": "Add ingredient",
+    "ingredientName": "Ingredient",
+    "ingredientPlaceholder": "e.g. Chicken",
+    "amount": "Amount",
+    "amountPlaceholder": "0",
+    "unit": "Unit",
+    "save": "Save recipe",
+    "cancel": "Cancel",
+    "id": "Recipe ID",
+    "idPlaceholder": "auto from name, or type a short id",
+    "translating": "Saving and translating to Tamil & Hindi…"
+  },
+  "units": {
+    "mg": "mg",
+    "g": "g",
+    "kg": "kg",
+    "ml": "ml",
+    "l": "L",
+    "pieces": "pieces"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "confirmDeleteTitle": "Delete recipe?",
+    "confirmDeleteBody": "This will permanently remove \"{{name}}\" and its ingredients.",
+    "confirmDelete": "Delete",
+    "cancel": "Cancel",
+    "close": "Close"
+  }
+}

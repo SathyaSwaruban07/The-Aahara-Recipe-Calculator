@@ -1,0 +1,124 @@
+{
+  "app": {
+    "brand": "Recipe Proportions Calculator",
+    "tagline": "रसोई व्यंजनों के अनुपात सटीक मापें",
+    "subtitle": "एक बार व्यंजन दर्ज करें। किसी भी संख्या के लिए सेकंडों में गणना करें।"
+  },
+  "nav": {
+    "recipes": "व्यंजन",
+    "add": "व्यंजन जोड़ें",
+    "language": "भाषा",
+    "back": "व्यंजन सूची पर वापस",
+    "fontSize": "फ़ॉन्ट आकार",
+    "fontIncrease": "फ़ॉन्ट बड़ा करें",
+    "fontDecrease": "फ़ॉन्ट छोटा करें"
+  },
+  "admin": {
+    "label": "एडमिन मोड",
+    "labelShort": "एडमिन",
+    "loginTitle": "एडमिन लॉगिन",
+    "username": "उपयोगकर्ता नाम",
+    "password": "पासवर्ड",
+    "unlock": "अनलॉक",
+    "invalidCredentials": "गलत उपयोगकर्ता नाम या पासवर्ड",
+    "lockedHint": "एडमिन मोड आवश्यक"
+  },
+
+  "list": {
+    "title": "रसोई व्यंजन",
+    "empty": "अभी कोई व्यंजन नहीं। अपना पहला व्यंजन जोड़ें।",
+    "emptySection": "इस अनुभाग में कोई व्यंजन नहीं।",
+    "emptySearch": "आपकी खोज से कोई व्यंजन नहीं मिला।",
+    "servings": "आधार सर्विंग्स",
+    "ingredients": "सामग्री",
+    "scale": "अनुपात",
+    "glance": "त्वरित दृष्टि",
+    "speak": "ज़ोर से पढ़ें",
+    "speakStop": "पढ़ना रोकें",
+    "speakUnsupported": "इस ब्राउज़र में ज़ोर से पढ़ना उपलब्ध नहीं है",
+    "speakFailed": "ऑडियो नहीं चल सका। कनेक्शन जाँचकर फिर कोशिश करें।",
+    "speakNoTamilVoice": "तमिल ऑडियो के लिए API सर्वर चलना ज़रूरी है (npm run dev)। इस कंप्यूटर पर बिल्ट-इन तमिल आवाज़ नहीं है — ऑनलाइन तमिल स्पीच का उपयोग होता है। सर्वर रीस्टार्ट करके फिर कोशिश करें।",
+    "speakNoHindiVoice": "हिन्दी ऑडियो के लिए API सर्वर चलना ज़रूरी है (npm run dev)। सर्वर रीस्टार्ट करके फिर कोशिश करें।",
+    "speakIngredients": "सामग्री",
+    "glancePortions": "{{count}} लोगों के लिए सामग्री",
+    "speakPortions": "ये मात्राएँ {{count}} लोगों के लिए हैं",
+    "edit": "संपादित करें",
+    "delete": "हटाएँ",
+    "search": "व्यंजन खोजें",
+    "searchPlaceholder": "अंग्रेज़ी, तमिल या हिन्दी में खोजें…",
+    "searchClear": "खोज साफ़ करें",
+    "voiceSearch": "आवाज़ से खोजें",
+    "voiceSearchListening": "सुन रहा है… रोकने के लिए टैप करें",
+    "voiceSearchUnsupported": "इस ब्राउज़र में वॉइस सर्च उपलब्ध नहीं है",
+    "filter": "फ़िल्टर",
+    "filterByCategory": "श्रेणियाँ",
+    "filterReset": "सभी श्रेणियाँ दिखाएँ"
+  },
+  "categories": {
+    "Breakfast": "नाश्ता",
+    "Lunch": "दोपहर का खाना",
+    "Dinner": "रात का खाना"
+  },
+  "scale": {
+    "title": "अनुपात मापें",
+    "from": "व्यंजन के लिए",
+    "people": "लोग",
+    "to": "गणना करें",
+    "factor": "स्केल फैक्टर",
+    "ingredient": "सामग्री",
+    "original": "मूल",
+    "scaled": "मापी गई मात्रा",
+    "back": "व्यंजन सूची पर वापस"
+  },
+  "form": {
+    "titleCreate": "व्यंजन जोड़ें",
+    "titleEdit": "व्यंजन संपादित करें",
+    "summary": "त्वरित दृष्टि",
+    "summaryUntitled": "बिना नाम का व्यंजन",
+    "summaryEmpty": "सामग्री नीचे जोड़ें — यहाँ दिखेगी।",
+    "name": "व्यंजन का नाम",
+    "namePlaceholder": "उदा. बटर चिकन",
+    "category": "श्रेणी",
+    "baseServings": "यह व्यंजन कितने लोगों के लिए",
+    "baseServingsPlaceholder": "20",
+    "soak": "भिगोना",
+    "soakDuration": "अवधि",
+    "soakUnit": "इकाई",
+    "soakUnits": {
+      "minutes": "मिनट",
+      "hours": "घंटे"
+    },
+    "notes": "नोट्स",
+    "notesPlaceholder": "वैकल्पिक रसोई सुझाव",
+    "ingredients": "सामग्री",
+    "addIngredient": "सामग्री जोड़ें",
+    "ingredientName": "सामग्री",
+    "ingredientPlaceholder": "उदा. मुर्गा",
+    "amount": "मात्रा",
+    "amountPlaceholder": "0",
+    "unit": "इकाई",
+    "save": "व्यंजन सहेजें",
+    "cancel": "रद्द करें",
+    "id": "व्यंजन ID",
+    "idPlaceholder": "नाम से स्वतः, या छोटा id लिखें",
+    "translating": "सहेजकर तमिल और हिन्दी में अनुवाद हो रहा है…"
+  },
+  "units": {
+    "mg": "मिलीग्राम",
+    "g": "ग्राम",
+    "kg": "किलोग्राम",
+    "ml": "मिलीलीटर",
+    "l": "लीटर",
+    "pieces": "टुकड़े"
+  },
+  "common": {
+    "loading": "लोड हो रहा है…",
+    "error": "कुछ गलत हुआ",
+    "retry": "फिर कोशिश करें",
+    "confirmDeleteTitle": "व्यंजन हटाएँ?",
+    "confirmDeleteBody": "\"{{name}}\" और उसकी सामग्री स्थायी रूप से हट जाएगी।",
+    "confirmDelete": "हटाएँ",
+    "cancel": "रद्द करें",
+    "close": "बंद करें"
+  }
+}

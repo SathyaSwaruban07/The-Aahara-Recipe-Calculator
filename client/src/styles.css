@@ -1,0 +1,143 @@
+:root {
+  color-scheme: light;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+html {
+  font-size: 18px;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Google Sans", "Product Sans", "Noto Sans", "Noto Sans Tamil",
+    "Noto Sans Devanagari", "Segoe UI", sans-serif;
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+  background-color: #f3eef8;
+  background-image:
+    radial-gradient(ellipse 90% 70% at 12% 8%, #dcc8f0 0%, transparent 55%),
+    radial-gradient(ellipse 80% 65% at 88% 92%, #f7c9b4 0%, transparent 55%),
+    radial-gradient(ellipse 70% 55% at 70% 20%, #f0d4e8 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 30% 75%, #e8d4f5 0%, transparent 50%),
+    linear-gradient(145deg, #e8dff5 0%, #f5e8f0 42%, #f8e4d8 100%);
+  background-attachment: fixed;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleRefresh {
+  0% {
+    opacity: 0.25;
+    transform: translateY(14px) scale(0.98);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.005);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.rise-in {
+  animation: riseIn 0.55s ease both;
+}
+
+.fade-slide {
+  animation: fadeSlide 0.45s ease both;
+}
+
+.scale-refresh {
+  animation: scaleRefresh 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes voiceWave {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.voice-wave {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 18px;
+  width: 22px;
+}
+
+.voice-wave span {
+  display: block;
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: center;
+  animation: voiceWave 0.9s ease-in-out infinite;
+}
+
+.voice-wave span:nth-child(1) {
+  animation-delay: 0ms;
+}
+.voice-wave span:nth-child(2) {
+  animation-delay: 120ms;
+}
+.voice-wave span:nth-child(3) {
+  animation-delay: 240ms;
+}
+.voice-wave span:nth-child(4) {
+  animation-delay: 360ms;
+}
+
+@media (max-width: 600px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
