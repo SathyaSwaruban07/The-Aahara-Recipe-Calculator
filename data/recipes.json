@@ -1,0 +1,252 @@
+{
+  "version": 5,
+  "localeHints": {
+    "supported": [
+      "en",
+      "ta",
+      "hi"
+    ],
+    "default": "en",
+    "note": "Soak is per ingredient (soak, soakDuration, soakUnit)."
+  },
+  "recipes": [
+    {
+      "id": "masala-dosa",
+      "name": "Masala dosa",
+      "category": "Breakfast",
+      "baseServings": 40,
+      "ingredients": [
+        {
+          "id": "md-rice",
+          "name": "Dosa rice",
+          "amount": 5,
+          "unit": "kg",
+          "soak": false
+        },
+        {
+          "id": "md-urad",
+          "name": "Urad dal",
+          "amount": 1.25,
+          "unit": "kg",
+          "soak": true,
+          "soakDuration": 30,
+          "soakUnit": "minutes"
+        },
+        {
+          "id": "md-potato",
+          "name": "Potato",
+          "amount": 3,
+          "unit": "kg",
+          "soak": false
+        },
+        {
+          "id": "md-salt",
+          "name": "Salt",
+          "amount": 80,
+          "unit": "g",
+          "soak": false
+        }
+      ],
+      "notes": "Ferment batter overnight.",
+      "translations": {
+        "ta": {
+          "name": "மசாலா தோசை",
+          "category": "காலை உணவு",
+          "notes": "மாவை இரவு முழுவதும் நொதிக்க விடுங்கள்.",
+          "ingredients": {
+            "md-rice": "தோசை அரிசி",
+            "md-urad": "உளுந்து",
+            "md-potato": "உருளைக்கிழங்கு",
+            "md-salt": "உப்பு"
+          }
+        },
+        "hi": {
+          "name": "मसाला डोसा",
+          "category": "नाश्ता",
+          "notes": "बैटर को रात भर किण्वित करें।",
+          "ingredients": {
+            "md-rice": "डोसा चावल",
+            "md-urad": "उड़द दाल",
+            "md-potato": "आलू",
+            "md-salt": "नमक"
+          }
+        }
+      }
+    },
+    {
+      "id": "rasam",
+      "name": "Rasam",
+      "category": "Lunch",
+      "baseServings": 20,
+      "ingredients": [
+        {
+          "id": "ing-d257157c",
+          "name": "Rasam powder",
+          "amount": 50,
+          "unit": "g"
+        },
+        {
+          "id": "ing-67720360",
+          "name": "Water",
+          "amount": 1,
+          "unit": "l"
+        },
+        {
+          "id": "ing-tamarind",
+          "name": "Tamarind",
+          "amount": 40,
+          "unit": "g",
+          "soak": true,
+          "soakDuration": 20,
+          "soakUnit": "minutes"
+        },
+        {
+          "id": "ing-salt-r",
+          "name": "Salt",
+          "amount": 30,
+          "unit": "g"
+        }
+      ],
+      "notes": "Temper with mustard and curry leaves.",
+      "translations": {
+        "ta": {
+          "name": "ரசம்",
+          "category": "மதிய உணவு",
+          "notes": "கடுகு மற்றும் கறிவேப்பிலையுடன் தாளிக்கவும்.",
+          "ingredients": {
+            "ing-d257157c": "ரசப் பொடி",
+            "ing-67720360": "தண்ணீர்",
+            "ing-tamarind": "புளி",
+            "ing-salt-r": "உப்பு"
+          }
+        },
+        "hi": {
+          "name": "रसम",
+          "category": "दोपहर का खाना",
+          "notes": "राई और करी पत्ते से तड़का लगाएँ।",
+          "ingredients": {
+            "ing-d257157c": "रसम पाउडर",
+            "ing-67720360": "पानी",
+            "ing-tamarind": "इमली",
+            "ing-salt-r": "नमक"
+          }
+        }
+      }
+    },
+    {
+      "id": "veg-biryani",
+      "name": "Vegetable biryani",
+      "category": "Lunch",
+      "baseServings": 20,
+      "ingredients": [
+        {
+          "id": "vb-rice",
+          "name": "Basmati rice",
+          "amount": 4,
+          "unit": "kg",
+          "soak": false
+        },
+        {
+          "id": "vb-onion",
+          "name": "Onion",
+          "amount": 2,
+          "unit": "kg",
+          "soak": false
+        },
+        {
+          "id": "vb-ghee",
+          "name": "Ghee",
+          "amount": 400,
+          "unit": "g",
+          "soak": false
+        },
+        {
+          "id": "vb-peas",
+          "name": "Green peas",
+          "amount": 500,
+          "unit": "g",
+          "soak": false
+        }
+      ],
+      "notes": "Use dum method for final 20 minutes.",
+      "translations": {
+        "ta": {
+          "name": "Vegetable biryani",
+          "category": "மதிய உணவு",
+          "notes": "Use dum method for final 20 minutes.",
+          "ingredients": {
+            "vb-rice": "Basmati rice",
+            "vb-onion": "Onion",
+            "vb-ghee": "Ghee",
+            "vb-peas": "Green peas"
+          }
+        },
+        "hi": {
+          "name": "Vegetable biryani",
+          "category": "दोपहर का खाना",
+          "notes": "Use dum method for final 20 minutes.",
+          "ingredients": {
+            "vb-rice": "Basmati rice",
+            "vb-onion": "Onion",
+            "vb-ghee": "Ghee",
+            "vb-peas": "Green peas"
+          }
+        }
+      }
+    },
+    {
+      "id": "sambar",
+      "name": "Sambar",
+      "category": "Lunch",
+      "baseServings": 20,
+      "ingredients": [
+        {
+          "id": "ing-cf783ad6",
+          "name": "Sambar Podi",
+          "amount": 100,
+          "unit": "g",
+          "soak": false
+        },
+        {
+          "id": "ing-373cf081",
+          "name": "Carrot",
+          "amount": 500,
+          "unit": "g",
+          "soak": false
+        },
+        {
+          "id": "ing-2d6eb8bd",
+          "name": "Dal",
+          "amount": 300,
+          "unit": "g",
+          "soak": true,
+          "soakDuration": 30,
+          "soakUnit": "minutes"
+        }
+      ],
+      "notes": "",
+      "translations": {
+        "ta": {
+          "name": "Sambar",
+          "category": "மதிய உணவு",
+          "notes": "",
+          "ingredients": {
+            "ing-cf783ad6": "Sambar Podi",
+            "ing-373cf081": "Carrot",
+            "ing-2d6eb8bd": "Dal"
+          }
+        },
+        "hi": {
+          "name": "Sambar",
+          "category": "दोपहर का खाना",
+          "notes": "",
+          "ingredients": {
+            "ing-cf783ad6": "Sambar Podi",
+            "ing-373cf081": "Carrot",
+            "ing-2d6eb8bd": "Dal"
+          }
+        }
+      }
+    }
+  ]
+}
