@@ -1,14 +1,24 @@
 import { z } from "zod";
 import { getPool, isDbAvailable } from "../db/pool.js";
-import type { Recipe, Unit } from "../types.js";
+import {
+  applyLocalPrepLinks,
+  applyLocalPrepLinksToRecipe,
+  applyLocalPrerequisiteFlag,
+  applyLocalPrerequisiteFlags,
+  hasPrepRecipeColumn,
+  saveLocalPrepLinks,
+  saveLocalPrerequisiteFlag,
+} from "../db/prepSchema.js";
+import type { Ingredient, Recipe, Unit } from "../types.js";
 
-const unitSchema = z.enum(["mg", "g", "kg", "ml", "l", "pieces"]);
+const unitSchema = z.enum(["mg", "g", "kg", "ml", "l", "pieces", "portions"]);
 
 const ingredientSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   amount: z.number().nonnegative(),
   unit: unitSchema,
+  prepRecipeId: z.string().min(1).optional(),
   soak: z.boolean().optional(),
   soakDuration: z.number().nonnegative().optional(),
   soakUnit: z.enum(["minutes", "hours"]).optional(),
@@ -30,6 +40,7 @@ const recipeSchema = z.object({
   baseServings: z.number().positive(),
   ingredients: z.array(ingredientSchema).min(1),
   notes: z.string().optional(),
+  isPrerequisite: z.boolean().optional(),
   translations: z
     .object({
       ta: localeFieldsSchema,
@@ -49,34 +60,43 @@ async function requirePool() {
   return pool;
 }
 
+function mapIngredientRow(row: Record<string, unknown>): Ingredient {
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    amount: Number(row.amount),
+    unit: row.unit as Unit,
+    prepRecipeId: row.prep_recipe_id ? String(row.prep_recipe_id) : undefined,
+    soak: row.soak ? true : undefined,
+    soakDuration: row.soak_duration != null ? Number(row.soak_duration) : undefined,
+    soakUnit: row.soak_unit === "hours" || row.soak_unit === "minutes" ? row.soak_unit : undefined,
+  };
+}
+
 async function listFromDb(): Promise<Recipe[]> {
   const pool = await requirePool();
+  const withPrep = await hasPrepRecipeColumn(pool);
 
   const recipesRes = await pool.query(
     `SELECT id, name, description, category, base_servings, notes
      FROM recipes ORDER BY id`
   );
   const ingredientsRes = await pool.query(
-    `SELECT id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit
-     FROM ingredients ORDER BY recipe_id, sort_order`
+    withPrep
+      ? `SELECT id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit, prep_recipe_id
+         FROM ingredients ORDER BY recipe_id, sort_order`
+      : `SELECT id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit
+         FROM ingredients ORDER BY recipe_id, sort_order`
   );
 
   const byRecipe = new Map<string, Recipe["ingredients"]>();
   for (const row of ingredientsRes.rows) {
     const list = byRecipe.get(row.recipe_id) ?? [];
-    list.push({
-      id: row.id,
-      name: row.name,
-      amount: Number(row.amount),
-      unit: row.unit as Unit,
-      soak: !!row.soak || undefined,
-      soakDuration: row.soak_duration != null ? Number(row.soak_duration) : undefined,
-      soakUnit: row.soak_unit === "hours" || row.soak_unit === "minutes" ? row.soak_unit : undefined,
-    });
+    list.push(mapIngredientRow(row));
     byRecipe.set(row.recipe_id, list);
   }
 
-  return recipesRes.rows.map((row) => ({
+  const recipes = recipesRes.rows.map((row) => ({
     id: row.id,
     name: row.name,
     category: row.category ?? "",
@@ -84,6 +104,9 @@ async function listFromDb(): Promise<Recipe[]> {
     notes: row.notes ?? undefined,
     ingredients: byRecipe.get(row.id) ?? [],
   }));
+
+  const withLinks = withPrep ? recipes : applyLocalPrepLinks(recipes);
+  return applyLocalPrerequisiteFlags(withLinks);
 }
 
 export async function listRecipes(): Promise<{ recipes: Recipe[]; source: "db" }> {
@@ -93,6 +116,7 @@ export async function listRecipes(): Promise<{ recipes: Recipe[]; source: "db" }
 
 async function getFromDb(id: string): Promise<Recipe | null> {
   const pool = await requirePool();
+  const withPrep = await hasPrepRecipeColumn(pool);
   const recipesRes = await pool.query(
     `SELECT id, name, description, category, base_servings, notes
      FROM recipes WHERE id = $1`,
@@ -101,26 +125,23 @@ async function getFromDb(id: string): Promise<Recipe | null> {
   if (!recipesRes.rows[0]) return null;
   const row = recipesRes.rows[0];
   const ingredientsRes = await pool.query(
-    `SELECT id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit
-     FROM ingredients WHERE recipe_id = $1 ORDER BY sort_order`,
+    withPrep
+      ? `SELECT id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit, prep_recipe_id
+         FROM ingredients WHERE recipe_id = $1 ORDER BY sort_order`
+      : `SELECT id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit
+         FROM ingredients WHERE recipe_id = $1 ORDER BY sort_order`,
     [id]
   );
-  return {
+  const recipe: Recipe = {
     id: row.id,
     name: row.name,
     category: row.category ?? "",
     baseServings: Number(row.base_servings),
     notes: row.notes ?? undefined,
-    ingredients: ingredientsRes.rows.map((ing) => ({
-      id: ing.id,
-      name: ing.name,
-      amount: Number(ing.amount),
-      unit: ing.unit as Unit,
-      soak: !!ing.soak || undefined,
-      soakDuration: ing.soak_duration != null ? Number(ing.soak_duration) : undefined,
-      soakUnit: ing.soak_unit === "hours" || ing.soak_unit === "minutes" ? ing.soak_unit : undefined,
-    })),
+    ingredients: ingredientsRes.rows.map((ing) => mapIngredientRow(ing)),
   };
+  const withLinks = withPrep ? recipe : applyLocalPrepLinksToRecipe(recipe);
+  return applyLocalPrerequisiteFlag(withLinks);
 }
 
 export async function getRecipe(id: string): Promise<Recipe | null> {
@@ -130,6 +151,7 @@ export async function getRecipe(id: string): Promise<Recipe | null> {
 export async function upsertRecipe(recipe: Recipe): Promise<Recipe> {
   const parsed = recipeSchema.parse(recipe);
   const pool = await requirePool();
+  const withPrep = await hasPrepRecipeColumn(pool);
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -148,21 +170,46 @@ export async function upsertRecipe(recipe: Recipe): Promise<Recipe> {
     await client.query("DELETE FROM ingredients WHERE recipe_id = $1", [parsed.id]);
     for (let i = 0; i < parsed.ingredients.length; i++) {
       const ing = parsed.ingredients[i];
-      await client.query(
-        `INSERT INTO ingredients (id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-        [
-          ing.id,
-          parsed.id,
-          ing.name,
-          ing.amount,
-          ing.unit,
-          i,
-          !!ing.soak,
-          ing.soak ? ing.soakDuration ?? null : null,
-          ing.soak ? ing.soakUnit || "minutes" : null,
-        ]
-      );
+      const isPrep = !!ing.prepRecipeId;
+      if (withPrep) {
+        await client.query(
+          `INSERT INTO ingredients (
+             id, recipe_id, name, amount, unit, sort_order,
+             soak, soak_duration, soak_unit, prep_recipe_id
+           ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+          [
+            ing.id,
+            parsed.id,
+            ing.name,
+            ing.amount,
+            isPrep ? "portions" : ing.unit,
+            i,
+            !isPrep && !!ing.soak,
+            !isPrep && ing.soak ? ing.soakDuration ?? null : null,
+            !isPrep && ing.soak ? ing.soakUnit || "minutes" : null,
+            ing.prepRecipeId ?? null,
+          ]
+        );
+      } else {
+        // No prep_recipe_id / portions yet — keep a Neon-safe unit; overlay restores prep on read.
+        await client.query(
+          `INSERT INTO ingredients (
+             id, recipe_id, name, amount, unit, sort_order,
+             soak, soak_duration, soak_unit
+           ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+          [
+            ing.id,
+            parsed.id,
+            ing.name,
+            ing.amount,
+            isPrep ? "pieces" : ing.unit === "portions" ? "pieces" : ing.unit,
+            i,
+            !isPrep && !!ing.soak,
+            !isPrep && ing.soak ? ing.soakDuration ?? null : null,
+            !isPrep && ing.soak ? ing.soakUnit || "minutes" : null,
+          ]
+        );
+      }
     }
     await client.query("COMMIT");
   } catch (e) {
@@ -171,6 +218,9 @@ export async function upsertRecipe(recipe: Recipe): Promise<Recipe> {
   } finally {
     client.release();
   }
+
+  if (!withPrep) saveLocalPrepLinks(parsed);
+  saveLocalPrerequisiteFlag(parsed);
   return parsed;
 }
 

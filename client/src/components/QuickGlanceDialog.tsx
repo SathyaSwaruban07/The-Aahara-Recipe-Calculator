@@ -17,25 +17,49 @@ import {
   displayRecipeName,
   displayRecipeNotes,
 } from "../i18n/recipeDisplay";
+import { buildPrepTree, flattenPrepTree } from "../lib/prepRecipes";
 import { buildRecipeSpeechSegments, stopSpeaking } from "../lib/speakRecipe";
 import { colors, notesCalloutLabelSx, notesCalloutSx } from "../theme";
 import type { Recipe } from "../types";
+import { PrepIngredientTree } from "./PrepIngredientTree";
 import { SpeakRecipeButton } from "./SpeakRecipeButton";
 
 interface Props {
   recipe: Recipe | null;
+  catalog: Recipe[];
   open: boolean;
   onClose: () => void;
 }
 
-export function QuickGlanceDialog({ recipe, open, onClose }: Props) {
+export function QuickGlanceDialog({ recipe, catalog, open, onClose }: Props) {
   const { t } = useTranslation();
   const { lang, tContent, tMany } = useContentTranslation();
 
+  const catalogMap = useMemo(
+    () => new Map(catalog.map((r) => [r.id, r])),
+    [catalog]
+  );
+
+  const tree = useMemo(() => {
+    if (!recipe) return [];
+    return buildPrepTree(recipe, catalogMap, {
+      nameFor: (owner, ing) =>
+        displayIngredientName(owner, ing.id, ing.name, lang, tContent),
+    });
+  }, [recipe, catalogMap, lang, tContent]);
+
   useEffect(() => {
     if (!open || !recipe || lang === "en") return;
-    tMany(collectRecipeContentTexts(recipe));
-  }, [open, recipe, lang, tMany]);
+    const texts = [
+      ...collectRecipeContentTexts(recipe),
+      ...catalog.flatMap((r) =>
+        recipe.ingredients.some((i) => i.prepRecipeId === r.id)
+          ? collectRecipeContentTexts(r)
+          : []
+      ),
+    ];
+    tMany(texts);
+  }, [open, recipe, catalog, lang, tMany]);
 
   useEffect(() => {
     if (!open) stopSpeaking();
@@ -43,21 +67,22 @@ export function QuickGlanceDialog({ recipe, open, onClose }: Props) {
 
   const speechSegments = useMemo(() => {
     if (!recipe) return [] as string[];
+    const flat = flattenPrepTree(tree);
     return buildRecipeSpeechSegments({
       recipeName: displayRecipeName(recipe, lang, tContent),
       servingsLabel: t("list.speakPortions", { count: recipe.baseServings }),
       introIngredients: t("list.speakIngredients"),
-      ingredients: recipe.ingredients.map((ing) => ({
-        name: displayIngredientName(recipe, ing.id, ing.name, lang, tContent),
-        amountLabel: `${ing.amount} ${t(`units.${ing.unit}`)}`,
+      ingredients: flat.map((node) => ({
+        name: `${node.depth > 0 ? "— ".repeat(node.depth) : ""}${node.name}`,
+        amountLabel: `${node.amount} ${t(`units.${node.unit}`)}`,
         soakLabel:
-          ing.soak && ing.soakDuration != null
-            ? `${t("form.soak")} ${ing.soakDuration} ${t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}`
+          node.soak && node.soakDuration != null
+            ? `${t("form.soak")} ${node.soakDuration} ${t(`form.soakUnits.${node.soakUnit || "minutes"}`)}`
             : undefined,
       })),
       notes: displayRecipeNotes(recipe, lang, tContent) || undefined,
     });
-  }, [recipe, lang, tContent, t]);
+  }, [recipe, tree, lang, tContent, t]);
 
   const handleClose = () => {
     stopSpeaking();
@@ -104,23 +129,7 @@ export function QuickGlanceDialog({ recipe, open, onClose }: Props) {
 
       <DialogContent sx={{ px: 3, pt: 0, pb: 1 }}>
         <Stack spacing={1.5}>
-          {recipe?.ingredients.map((ing) => (
-            <Box key={ing.id}>
-              <Stack direction="row" alignItems="baseline" justifyContent="space-between" spacing={2}>
-                <Typography sx={{ color: colors.charcoal, wordBreak: "break-word", minWidth: 0, fontWeight: 600 }}>
-                  {displayIngredientName(recipe, ing.id, ing.name, lang, tContent)}
-                </Typography>
-                <Typography fontWeight={700} sx={{ color: colors.charcoal, whiteSpace: "nowrap", flexShrink: 0 }}>
-                  {ing.amount} {t(`units.${ing.unit}`)}
-                </Typography>
-              </Stack>
-              {ing.soak && ing.soakDuration != null && (
-                <Typography variant="body2" sx={{ mt: 0.35, color: colors.slate, fontWeight: 600 }}>
-                  {t("form.soak")}: {ing.soakDuration} {t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}
-                </Typography>
-              )}
-            </Box>
-          ))}
+          <PrepIngredientTree nodes={tree} />
 
           {!!recipe && !!displayRecipeNotes(recipe, lang, tContent) && (
             <Box sx={{ ...notesCalloutSx, mt: 0.5, p: 1.5 }}>

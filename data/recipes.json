@@ -11,20 +11,21 @@
   },
   "recipes": [
     {
-      "id": "masala-dosa",
-      "name": "Masala dosa",
+      "id": "dosa-batter",
+      "name": "Dosa Batter",
       "category": "Breakfast",
+      "isPrerequisite": true,
       "baseServings": 40,
       "ingredients": [
         {
-          "id": "md-rice",
+          "id": "db-rice",
           "name": "Dosa rice",
           "amount": 5,
           "unit": "kg",
           "soak": false
         },
         {
-          "id": "md-urad",
+          "id": "db-urad",
           "name": "Urad dal",
           "amount": 1.25,
           "unit": "kg",
@@ -33,14 +34,7 @@
           "soakUnit": "minutes"
         },
         {
-          "id": "md-potato",
-          "name": "Potato",
-          "amount": 3,
-          "unit": "kg",
-          "soak": false
-        },
-        {
-          "id": "md-salt",
+          "id": "db-salt",
           "name": "Salt",
           "amount": 80,
           "unit": "g",
@@ -50,25 +44,128 @@
       "notes": "Ferment batter overnight.",
       "translations": {
         "ta": {
-          "name": "மசாலா தோசை",
+          "name": "தோசை மாவு",
           "category": "காலை உணவு",
           "notes": "மாவை இரவு முழுவதும் நொதிக்க விடுங்கள்.",
           "ingredients": {
-            "md-rice": "தோசை அரிசி",
-            "md-urad": "உளுந்து",
-            "md-potato": "உருளைக்கிழங்கு",
-            "md-salt": "உப்பு"
+            "db-rice": "தோசை அரிசி",
+            "db-urad": "உளுந்து",
+            "db-salt": "உப்பு"
+          }
+        },
+        "hi": {
+          "name": "डोसा बैटर",
+          "category": "नाश्ता",
+          "notes": "बैटर को रात भर किण्वित करें।",
+          "ingredients": {
+            "db-rice": "डोसा चावल",
+            "db-urad": "उड़द दाल",
+            "db-salt": "नमक"
+          }
+        }
+      }
+    },
+    {
+      "id": "masala-stuffing",
+      "name": "Masala Stuffing",
+      "category": "Breakfast",
+      "isPrerequisite": true,
+      "baseServings": 40,
+      "ingredients": [
+        {
+          "id": "ms-potato",
+          "name": "Potato",
+          "amount": 3,
+          "unit": "kg",
+          "soak": false
+        },
+        {
+          "id": "ms-onion",
+          "name": "Onion",
+          "amount": 500,
+          "unit": "g",
+          "soak": false
+        },
+        {
+          "id": "ms-mustard",
+          "name": "Mustard seeds",
+          "amount": 20,
+          "unit": "g",
+          "soak": false
+        },
+        {
+          "id": "ms-turmeric",
+          "name": "Turmeric",
+          "amount": 10,
+          "unit": "g",
+          "soak": false
+        }
+      ],
+      "notes": "Keep slightly dry for dosa filling.",
+      "translations": {
+        "ta": {
+          "name": "மசாலா நிரப்புதல்",
+          "category": "காலை உணவு",
+          "notes": "தோசை நிரப்புதலுக்கு சற்று உலர வைக்கவும்.",
+          "ingredients": {
+            "ms-potato": "உருளைக்கிழங்கு",
+            "ms-onion": "வெங்காயம்",
+            "ms-mustard": "கடுகு",
+            "ms-turmeric": "மஞ்சள்"
+          }
+        },
+        "hi": {
+          "name": "मसाला स्टफिंग",
+          "category": "नाश्ता",
+          "notes": "डोसा भरने के लिए थोड़ा सूखा रखें।",
+          "ingredients": {
+            "ms-potato": "आलू",
+            "ms-onion": "प्याज",
+            "ms-mustard": "राई",
+            "ms-turmeric": "हल्दी"
+          }
+        }
+      }
+    },
+    {
+      "id": "masala-dosa",
+      "name": "Masala dosa",
+      "category": "Breakfast",
+      "baseServings": 40,
+      "ingredients": [
+        {
+          "id": "md-batter",
+          "name": "Dosa Batter",
+          "amount": 40,
+          "unit": "portions",
+          "prepRecipeId": "dosa-batter"
+        },
+        {
+          "id": "md-stuffing",
+          "name": "Masala Stuffing",
+          "amount": 40,
+          "unit": "portions",
+          "prepRecipeId": "masala-stuffing"
+        }
+      ],
+      "notes": "Assembly: Dosa Batter + Masala Stuffing per plate.",
+      "translations": {
+        "ta": {
+          "name": "மசாலா தோசை",
+          "category": "காலை உணவு",
+          "notes": "தோசை மாவு + மசாலா நிரப்புதல்.",
+          "ingredients": {
+            "md-batter": "தோசை மாவு",
+            "md-stuffing": "மசாலா நிரப்புதல்"
           }
         },
         "hi": {
           "name": "मसाला डोसा",
           "category": "नाश्ता",
-          "notes": "बैटर को रात भर किण्वित करें।",
+          "notes": "डोसा बैटर + मसाला स्टफिंग।",
           "ingredients": {
-            "md-rice": "डोसा चावल",
-            "md-urad": "उड़द दाल",
-            "md-potato": "आलू",
-            "md-salt": "नमक"
+            "md-batter": "डोसा बैटर",
+            "md-stuffing": "मसाला स्टफिंग"
           }
         }
       }

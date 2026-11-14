@@ -17,11 +17,12 @@ CREATE TABLE IF NOT EXISTS ingredients (
   recipe_id TEXT NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   amount NUMERIC NOT NULL CHECK (amount >= 0),
-  unit TEXT NOT NULL CHECK (unit IN ('mg','g','kg','ml','l','pieces')),
+  unit TEXT NOT NULL,
   sort_order INT NOT NULL DEFAULT 0,
   soak BOOLEAN NOT NULL DEFAULT FALSE,
   soak_duration NUMERIC,
-  soak_unit TEXT CHECK (soak_unit IS NULL OR soak_unit IN ('minutes','hours'))
+  soak_unit TEXT CHECK (soak_unit IS NULL OR soak_unit IN ('minutes','hours')),
+  prep_recipe_id TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_ingredients_recipe ON ingredients(recipe_id);
@@ -29,6 +30,20 @@ CREATE INDEX IF NOT EXISTS idx_ingredients_recipe ON ingredients(recipe_id);
 ALTER TABLE ingredients ADD COLUMN IF NOT EXISTS soak BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE ingredients ADD COLUMN IF NOT EXISTS soak_duration NUMERIC;
 ALTER TABLE ingredients ADD COLUMN IF NOT EXISTS soak_unit TEXT;
+ALTER TABLE ingredients ADD COLUMN IF NOT EXISTS prep_recipe_id TEXT;
+
+-- Allow portions unit (prep recipe links)
+DO $$ BEGIN
+  ALTER TABLE ingredients DROP CONSTRAINT IF EXISTS ingredients_unit_check;
+EXCEPTION WHEN undefined_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE ingredients
+    ADD CONSTRAINT ingredients_unit_check
+    CHECK (unit IN ('mg','g','kg','ml','l','pieces','portions'));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Upgrade path from v1 key-based columns (safe if columns already renamed/absent)
 DO $$ BEGIN

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { deleteRecipe, getRecipe, listRecipes, recipeSchema, upsertRecipe } from "../store/recipes.js";
 import { scaleRecipe } from "../lib/scale.js";
+import type { Recipe } from "../types.js";
 import { withTranslations } from "../lib/recipeI18n.js";
 import { translateBatch, translateText } from "../lib/translate.js";
 import { chunkForTts, fetchTtsMp3 } from "../lib/tts.js";
@@ -124,7 +125,9 @@ recipesRouter.get("/:id/scale", async (req, res) => {
     const parsed = raw == null || raw === "" ? NaN : Number(raw);
     const servings =
       Number.isFinite(parsed) && parsed > 0 ? parsed : recipe.baseServings;
-    res.json(scaleRecipe(recipe, servings));
+    const { recipes } = await listRecipes();
+    const catalog = new Map<string, Recipe>(recipes.map((r) => [r.id, r]));
+    res.json(scaleRecipe(recipe, servings, catalog));
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }

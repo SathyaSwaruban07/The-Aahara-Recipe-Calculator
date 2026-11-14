@@ -23,6 +23,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import MicIcon from "@mui/icons-material/Mic";
 import MicNoneIcon from "@mui/icons-material/MicNone";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ScaleIcon from "@mui/icons-material/Scale";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -51,9 +52,16 @@ import {
   primaryButtonSx,
   surfaceSx,
 } from "../theme";
+import {
+  collectPrepTargetIds,
+  isPrerequisiteRecipe,
+  prepLinksOf,
+} from "../lib/prepRecipes";
 import { MEAL_CATEGORIES, type MealCategory, type Recipe } from "../types";
 import { QuickGlanceDialog } from "./QuickGlanceDialog";
 import { SpeakRecipeButton } from "./SpeakRecipeButton";
+
+type SectionKey = MealCategory | "Prerequisites";
 
 interface Props {
   recipes: Recipe[];
@@ -156,6 +164,9 @@ export function RecipeList({ recipes, loading, onAdd, onScale, onEdit, onDelete 
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<MealCategory[]>([...MEAL_CATEGORIES]);
   const [filterAnchor, setFilterAnchor] = useState<null | HTMLElement>(null);
+  const [collapsedSections, setCollapsedSections] = useState<Partial<Record<SectionKey, boolean>>>({});
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const highlightTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -218,16 +229,31 @@ export function RecipeList({ recipes, loading, onAdd, onScale, onEdit, onDelete 
     }
   };
 
-  const filtered = useMemo(() => {
+  const prepTargetIds = useMemo(() => collectPrepTargetIds(recipes), [recipes]);
+  const catalogMap = useMemo(() => new Map(recipes.map((r) => [r.id, r])), [recipes]);
+
+  const searchMatched = useMemo(() => {
     return recipes
       .map((r) => ({ recipe: r, score: scoreRecipeSearch(r, query) }))
-      .filter(({ recipe, score }) => {
-        if (score <= 0) return false;
-        return selectedCategories.includes(normalizeCategory(recipe.category));
-      })
+      .filter(({ score }) => score > 0)
       .sort((a, b) => b.score - a.score)
       .map(({ recipe }) => recipe);
-  }, [recipes, query, selectedCategories]);
+  }, [recipes, query]);
+
+  const dishRecipes = useMemo(
+    () =>
+      searchMatched.filter(
+        (r) =>
+          !isPrerequisiteRecipe(r, prepTargetIds) &&
+          selectedCategories.includes(normalizeCategory(r.category))
+      ),
+    [searchMatched, prepTargetIds, selectedCategories]
+  );
+
+  const prerequisiteRecipes = useMemo(
+    () => searchMatched.filter((r) => isPrerequisiteRecipe(r, prepTargetIds)),
+    [searchMatched, prepTargetIds]
+  );
 
   const byCategory = useMemo(() => {
     const map: Record<MealCategory, Recipe[]> = {
@@ -235,14 +261,35 @@ export function RecipeList({ recipes, loading, onAdd, onScale, onEdit, onDelete 
       Lunch: [],
       Dinner: [],
     };
-    for (const recipe of filtered) {
+    for (const recipe of dishRecipes) {
       map[normalizeCategory(recipe.category)].push(recipe);
     }
     return map;
-  }, [filtered]);
+  }, [dishRecipes]);
 
-  const visibleCategories = MEAL_CATEGORIES.filter((c) => byCategory[c].length > 0);
+  const listSections = useMemo(() => {
+    const sections: { key: SectionKey; titleKey: string; items: Recipe[] }[] = [];
+    for (const category of MEAL_CATEGORIES) {
+      if (byCategory[category].length) {
+        sections.push({
+          key: category,
+          titleKey: `categories.${category}`,
+          items: byCategory[category],
+        });
+      }
+    }
+    if (prerequisiteRecipes.length) {
+      sections.push({
+        key: "Prerequisites",
+        titleKey: "list.prerequisites",
+        items: prerequisiteRecipes,
+      });
+    }
+    return sections;
+  }, [byCategory, prerequisiteRecipes]);
+
   const filterActive = selectedCategories.length !== MEAL_CATEGORIES.length;
+  const hasVisibleRecipes = dishRecipes.length > 0 || prerequisiteRecipes.length > 0;
 
   const toggleCategory = (category: MealCategory) => {
     setSelectedCategories((prev) => {
@@ -252,6 +299,32 @@ export function RecipeList({ recipes, loading, onAdd, onScale, onEdit, onDelete 
       }
       return [...prev, category];
     });
+  };
+
+  const toggleSectionCollapse = (key: SectionKey) => {
+    setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const scrollToPrep = (prepRecipeId: string) => {
+    setCollapsedSections((prev) => ({ ...prev, Prerequisites: false }));
+    if (highlightTimerRef.current != null) {
+      window.clearTimeout(highlightTimerRef.current);
+      highlightTimerRef.current = null;
+    }
+    // Drop class first so the 2s bloom animation can restart on the same card
+    setHighlightId(null);
+    window.requestAnimationFrame(() => {
+      setHighlightId(prepRecipeId);
+      highlightTimerRef.current = window.setTimeout(() => {
+        setHighlightId((cur) => (cur === prepRecipeId ? null : cur));
+        highlightTimerRef.current = null;
+      }, 2000);
+    });
+    window.setTimeout(() => {
+      document
+        .getElementById(`recipe-${prepRecipeId}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
   };
 
   if (loading) {
@@ -514,47 +587,110 @@ export function RecipeList({ recipes, loading, onAdd, onScale, onEdit, onDelete 
         </Typography>
       )}
 
-      {!!recipes.length && !filtered.length && (
+      {!!recipes.length && !hasVisibleRecipes && (
         <Typography color="text.secondary" sx={{ py: 2 }}>
           {t("list.emptySearch")}
         </Typography>
       )}
 
       <Stack spacing={4}>
-        {visibleCategories.map((category) => {
-          const items = byCategory[category];
+        {listSections.map((section) => {
+          const items = section.items;
+          const expanded = !collapsedSections[section.key];
           return (
-            <Box key={category} component="section" sx={{ minWidth: 0, width: "100%" }}>
-              <Typography
-                variant="h6"
+            <Box key={section.key} component="section" sx={{ minWidth: 0, width: "100%" }}>
+              <Box
+                component="button"
+                type="button"
+                onClick={() => toggleSectionCollapse(section.key)}
+                aria-expanded={expanded}
+                aria-controls={`category-panel-${section.key}`}
                 sx={{
-                  mb: 1.5,
-                  pb: 0.75,
+                  all: "unset",
+                  boxSizing: "border-box",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.75,
                   width: "100%",
                   maxWidth: "100%",
-                  display: "block",
-                  fontSize: { xs: "1.05rem", sm: "1.25rem" },
-                  lineHeight: 1.35,
-                  whiteSpace: "normal",
-                  overflowWrap: "anywhere",
-                  wordBreak: "break-word",
+                  mb: expanded ? 1.5 : 0,
+                  pb: 0.75,
+                  transition: "margin-bottom 0.38s cubic-bezier(0.33, 1, 0.68, 1)",
                   backgroundImage:
                     "linear-gradient(90deg, rgba(37, 99, 235, 0.35) 0%, rgba(124, 58, 237, 0.28) 55%, rgba(168, 85, 247, 0.22) 100%)",
                   backgroundSize: "100% 2px",
                   backgroundRepeat: "no-repeat",
                   backgroundPosition: "bottom",
+                  "&:focus-visible": {
+                    outline: `2px solid ${colors.brand}`,
+                    outlineOffset: 2,
+                    borderRadius: "4px",
+                  },
                 }}
               >
-                {t(`categories.${category}`)}
-              </Typography>
+                <ExpandMoreIcon
+                  aria-hidden
+                  sx={{
+                    color: colors.slate,
+                    flexShrink: 0,
+                    transition: "transform 0.38s cubic-bezier(0.33, 1, 0.68, 1)",
+                    transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
+                  }}
+                />
+                <Typography
+                  variant="h6"
+                  component="span"
+                  sx={{
+                    flex: 1,
+                    minWidth: 0,
+                    fontSize: { xs: "1.05rem", sm: "1.25rem" },
+                    lineHeight: 1.35,
+                    whiteSpace: "normal",
+                    overflowWrap: "anywhere",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {t(section.titleKey)}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: colors.slate, flexShrink: 0, fontWeight: 600 }}
+                >
+                  {items.length}
+                </Typography>
+              </Box>
 
-              <Stack spacing={2.5} sx={{ mt: 1.5 }}>
-                {items.map((recipe, index) => (
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateRows: expanded ? "1fr" : "0fr",
+                  transition: "grid-template-rows 0.4s cubic-bezier(0.33, 1, 0.68, 1)",
+                }}
+              >
+                <Box
+                  id={`category-panel-${section.key}`}
+                  sx={{
+                    overflow: "hidden",
+                    minHeight: 0,
+                    opacity: expanded ? 1 : 0,
+                    transform: expanded ? "translateY(0)" : "translateY(-6px)",
+                    transition:
+                      "opacity 0.32s cubic-bezier(0.33, 1, 0.68, 1), transform 0.4s cubic-bezier(0.33, 1, 0.68, 1)",
+                    transitionDelay: expanded ? "0.04s" : "0s",
+                    pointerEvents: expanded ? "auto" : "none",
+                  }}
+                >
+              <Stack spacing={2.5} sx={{ mt: 0.25, pb: 0.25 }}>
+                {items.map((recipe) => {
+                  const prepLinks = prepLinksOf(recipe);
+                  const highlighted = highlightId === recipe.id;
+                  return (
                   <Box
                     key={recipe.id}
-                    className="fade-slide"
+                    id={`recipe-${recipe.id}`}
+                    className={highlighted ? "recipe-scroll-bloom" : undefined}
                     sx={{
-                      animationDelay: `${index * 50}ms`,
                       p: { xs: 2, sm: 2.5 },
                       ...surfaceSx,
                       boxShadow: floatingCardShadow,
@@ -622,6 +758,35 @@ export function RecipeList({ recipes, loading, onAdd, onScale, onEdit, onDelete 
                         {" · "}
                         {recipe.ingredients.length} {t("list.ingredients")}
                       </Typography>
+                      {prepLinks.length > 0 && (
+                        <Stack
+                          direction="row"
+                          flexWrap="wrap"
+                          alignItems="center"
+                          sx={{ mt: 1, gap: 0.75 }}
+                        >
+                          {prepLinks.map((link) => {
+                            const target = catalogMap.get(link.prepRecipeId);
+                            const label = target
+                              ? displayRecipeName(target, lang, tContent)
+                              : link.name;
+                            return (
+                              <Box
+                                key={link.prepRecipeId}
+                                component="button"
+                                type="button"
+                                className="no-print prep-tag-bloom"
+                                onClick={() => scrollToPrep(link.prepRecipeId)}
+                                title={t("list.scrollToPrep", { name: label })}
+                              >
+                                <Box component="span" sx={{ position: "relative", zIndex: 1 }}>
+                                  {label}
+                                </Box>
+                              </Box>
+                            );
+                          })}
+                        </Stack>
+                      )}
                       <Typography variant="body2" sx={{ mt: 0.75, color: colors.slate }}>
                         {recipe.ingredients
                           .map((ing) => {
@@ -785,8 +950,11 @@ export function RecipeList({ recipes, loading, onAdd, onScale, onEdit, onDelete 
                       </Box>
                     )}
                   </Box>
-                ))}
+                  );
+                })}
               </Stack>
+                </Box>
+              </Box>
             </Box>
           );
         })}
@@ -794,6 +962,7 @@ export function RecipeList({ recipes, loading, onAdd, onScale, onEdit, onDelete 
 
       <QuickGlanceDialog
         recipe={glanceRecipe}
+        catalog={recipes}
         open={!!glanceRecipe}
         onClose={() => setGlanceRecipe(null)}
       />

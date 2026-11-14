@@ -2,6 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { getPool } from "./pool.js";
+import {
+  hasPrepRecipeColumn,
+  saveLocalPrepLinks,
+  saveLocalPrerequisiteFlag,
+} from "./prepSchema.js";
 import type { RecipesFile } from "../types.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,6 +20,7 @@ async function main() {
   }
 
   const file = JSON.parse(fs.readFileSync(recipesPath, "utf8")) as RecipesFile;
+  const withPrep = await hasPrepRecipeColumn(pool);
 
   const client = await pool.connect();
   try {
@@ -44,25 +50,56 @@ async function main() {
 
       for (let i = 0; i < recipe.ingredients.length; i++) {
         const ing = recipe.ingredients[i];
-        await client.query(
-          `INSERT INTO ingredients (id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-          [
-            ing.id,
-            recipe.id,
-            ing.name,
-            ing.amount,
-            ing.unit,
-            i,
-            !!ing.soak,
-            ing.soak ? ing.soakDuration ?? null : null,
-            ing.soak ? ing.soakUnit || "minutes" : null,
-          ]
-        );
+        const isPrep = !!ing.prepRecipeId;
+        if (withPrep) {
+          await client.query(
+            `INSERT INTO ingredients (
+               id, recipe_id, name, amount, unit, sort_order,
+               soak, soak_duration, soak_unit, prep_recipe_id
+             ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+            [
+              ing.id,
+              recipe.id,
+              ing.name,
+              ing.amount,
+              isPrep ? "portions" : ing.unit,
+              i,
+              !isPrep && !!ing.soak,
+              !isPrep && ing.soak ? ing.soakDuration ?? null : null,
+              !isPrep && ing.soak ? ing.soakUnit || "minutes" : null,
+              ing.prepRecipeId ?? null,
+            ]
+          );
+        } else {
+          await client.query(
+            `INSERT INTO ingredients (
+               id, recipe_id, name, amount, unit, sort_order,
+               soak, soak_duration, soak_unit
+             ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+            [
+              ing.id,
+              recipe.id,
+              ing.name,
+              ing.amount,
+              isPrep ? "pieces" : ing.unit === "portions" ? "pieces" : ing.unit,
+              i,
+              !isPrep && !!ing.soak,
+              !isPrep && ing.soak ? ing.soakDuration ?? null : null,
+              !isPrep && ing.soak ? ing.soakUnit || "minutes" : null,
+            ]
+          );
+        }
       }
+
+      if (!withPrep) saveLocalPrepLinks(recipe);
+      saveLocalPrerequisiteFlag(recipe);
     }
     await client.query("COMMIT");
-    console.log(`Seeded ${file.recipes.length} recipes from data/recipes.json`);
+    console.log(
+      withPrep
+        ? `Seeded ${file.recipes.length} recipes (prep links in Neon).`
+        : `Seeded ${file.recipes.length} recipes (prep links local-only; run db:migrate later).`
+    );
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;

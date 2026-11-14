@@ -166,15 +166,13 @@ export const theme = createTheme({
 
 /** Warm-plum tinted multi-layer shadow for pastel mesh backgrounds */
 export const floatingCardShadow = [
-  "0 2px 4px -1px rgba(45, 30, 50, 0.04)",
-  "0 12px 24px -4px rgba(45, 30, 50, 0.08)",
-  "0 24px 48px -12px rgba(45, 30, 50, 0.06)",
+  "0 1px 2px rgba(28, 25, 23, 0.04)",
+  "0 4px 12px rgba(28, 25, 23, 0.05)",
 ].join(", ");
 
 export const floatingCardShadowHover = [
-  "0 4px 8px -1px rgba(45, 30, 50, 0.05)",
-  "0 18px 36px -4px rgba(45, 30, 50, 0.12)",
-  "0 32px 64px -12px rgba(45, 30, 50, 0.08)",
+  "0 2px 4px rgba(28, 25, 23, 0.05)",
+  "0 8px 20px rgba(28, 25, 23, 0.07)",
 ].join(", ");
 
 export const primaryButtonSx = {

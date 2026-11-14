@@ -37,8 +37,34 @@ import {
   notesCalloutSx,
   primaryButtonSx,
 } from "../theme";
-import type { ScaledRecipe } from "../types";
+import type { ScaledIngredient, ScaledRecipe } from "../types";
 import { SpeakRecipeButton } from "./SpeakRecipeButton";
+
+function flattenSpeechIngredients(
+  recipe: ScaledRecipe,
+  lang: "en" | "ta" | "hi",
+  tContent: (text: string) => string,
+  unitLabel: (unit: string) => string,
+  soakLabelFor: (ing: ScaledIngredient) => string | undefined,
+  depth = 0
+): { name: string; amountLabel: string; soakLabel?: string }[] {
+  const rows: { name: string; amountLabel: string; soakLabel?: string }[] = [];
+  for (const ing of recipe.ingredients) {
+    const label = displayIngredientName(recipe, ing.id, ing.name, lang, tContent);
+    const prefix = depth > 0 ? `${"— ".repeat(depth)}` : "";
+    rows.push({
+      name: `${prefix}${label}`,
+      amountLabel: `${ing.displayAmount} ${unitLabel(ing.displayUnit)}`,
+      soakLabel: soakLabelFor(ing),
+    });
+    if (ing.prepScaled) {
+      rows.push(
+        ...flattenSpeechIngredients(ing.prepScaled, lang, tContent, unitLabel, soakLabelFor, depth + 1)
+      );
+    }
+  }
+  return rows;
+}
 
 interface Props {
   recipeId: string;
@@ -93,14 +119,16 @@ export function ScaleView({ recipeId, onBack }: Props) {
       recipeName: displayRecipeName(data, lang, tContent),
       servingsLabel: t("list.speakPortions", { count: portions }),
       introIngredients: t("list.speakIngredients"),
-      ingredients: data.ingredients.map((ing) => ({
-        name: displayIngredientName(data, ing.id, ing.name, lang, tContent),
-        amountLabel: `${ing.displayAmount} ${t(`units.${ing.displayUnit}`)}`,
-        soakLabel:
+      ingredients: flattenSpeechIngredients(
+        data,
+        lang,
+        tContent,
+        (unit) => t(`units.${unit}`),
+        (ing) =>
           ing.soak && ing.soakDuration != null
             ? `${t("form.soak")} ${ing.soakDuration} ${t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}`
-            : undefined,
-      })),
+            : undefined
+      ),
       notes: displayRecipeNotes(data, lang, tContent) || undefined,
     });
   }, [data, lang, tContent, t]);
@@ -261,46 +289,14 @@ export function ScaleView({ recipeId, onBack }: Props) {
         {isMobile ? (
           <Stack spacing={1.5}>
             {data.ingredients.map((ing) => (
-              <Box
+              <MobileIngredientBlock
                 key={ing.id}
-                sx={{
-                  p: 2,
-                  borderRadius: "12px",
-                  bgcolor: "rgba(255, 255, 255, 0.45)",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(255, 255, 255, 0.55)",
-                  boxShadow: floatingCardShadow,
-                }}
-              >
-                <Typography fontWeight={600} sx={{ color: colors.charcoal }}>
-                  {displayIngredientName(data, ing.id, ing.name, lang, tContent)}
-                </Typography>
-                {ing.soak && ing.soakDuration != null && (
-                  <Typography
-                    variant="body1"
-                    sx={{ color: colors.charcoal, display: "block", mt: 0.75, fontWeight: 600 }}
-                  >
-                    {t("form.soak")}: {ing.soakDuration} {t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}
-                  </Typography>
-                )}
-                <Divider sx={{ my: 1, borderColor: "rgba(28, 25, 23, 0.08)" }} />
-                <Stack direction="row" justifyContent="space-between" spacing={1}>
-                  <Typography variant="body2" color="text.secondary">
-                    {t("scale.original")}
-                  </Typography>
-                  <Typography variant="body2">
-                    {ing.amount} {t(`units.${ing.unit}`)}
-                  </Typography>
-                </Stack>
-                <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ mt: 0.75 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {t("scale.scaled")}
-                  </Typography>
-                  <Typography fontWeight={700} color="primary.dark">
-                    {ing.displayAmount} {t(`units.${ing.displayUnit}`)}
-                  </Typography>
-                </Stack>
-              </Box>
+                recipe={data}
+                ing={ing}
+                lang={lang}
+                tContent={tContent}
+                depth={0}
+              />
             ))}
           </Stack>
         ) : (
@@ -325,20 +321,14 @@ export function ScaleView({ recipeId, onBack }: Props) {
               </TableHead>
               <TableBody>
                 {data.ingredients.map((ing) => (
-                  <TableRow key={ing.id} hover>
-                    <TableCell>{displayIngredientName(data, ing.id, ing.name, lang, tContent)}</TableCell>
-                    <TableCell sx={{ fontSize: "1.05rem", fontWeight: 600 }}>
-                      {ing.soak && ing.soakDuration != null
-                        ? `${ing.soakDuration} ${t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}`
-                        : "—"}
-                    </TableCell>
-                    <TableCell align="right">
-                      {ing.amount} {t(`units.${ing.unit}`)}
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700, color: "primary.dark" }}>
-                      {ing.displayAmount} {t(`units.${ing.displayUnit}`)}
-                    </TableCell>
-                  </TableRow>
+                  <DesktopIngredientRows
+                    key={ing.id}
+                    recipe={data}
+                    ing={ing}
+                    lang={lang}
+                    tContent={tContent}
+                    depth={0}
+                  />
                 ))}
               </TableBody>
             </Table>
@@ -365,6 +355,149 @@ export function ScaleView({ recipeId, onBack }: Props) {
       </Box>
       </Box>
     </Box>
+  );
+}
+
+function MobileIngredientBlock({
+  recipe,
+  ing,
+  lang,
+  tContent,
+  depth,
+}: {
+  recipe: ScaledRecipe;
+  ing: ScaledIngredient;
+  lang: "en" | "ta" | "hi";
+  tContent: (text: string) => string;
+  depth: number;
+}) {
+  const { t } = useTranslation();
+  const isPrep = !!ing.prepRecipeId;
+  return (
+    <Box
+      sx={{
+        p: 2,
+        borderRadius: "12px",
+        bgcolor: depth === 0 ? "rgba(255, 255, 255, 0.45)" : "rgba(255, 255, 255, 0.28)",
+        backdropFilter: "blur(8px)",
+        border: "1px solid rgba(255, 255, 255, 0.55)",
+        boxShadow: depth === 0 ? floatingCardShadow : "none",
+        ml: depth > 0 ? 1.5 : 0,
+        borderLeft: depth > 0 ? `3px solid ${colors.brand}` : undefined,
+      }}
+    >
+      <Stack direction="row" alignItems="baseline" spacing={1} flexWrap="wrap">
+        <Typography fontWeight={700} sx={{ color: colors.charcoal }}>
+          {displayIngredientName(recipe, ing.id, ing.name, lang, tContent)}
+        </Typography>
+        {isPrep && (
+          <Typography variant="caption" sx={{ color: colors.slate, fontWeight: 600 }}>
+            {t("scale.prepLine")}
+          </Typography>
+        )}
+      </Stack>
+      {ing.soak && ing.soakDuration != null && (
+        <Typography
+          variant="body1"
+          sx={{ color: colors.charcoal, display: "block", mt: 0.75, fontWeight: 600 }}
+        >
+          {t("form.soak")}: {ing.soakDuration} {t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}
+        </Typography>
+      )}
+      <Divider sx={{ my: 1, borderColor: "rgba(28, 25, 23, 0.08)" }} />
+      <Stack direction="row" justifyContent="space-between" spacing={1}>
+        <Typography variant="body2" color="text.secondary">
+          {t("scale.original")}
+        </Typography>
+        <Typography variant="body2">
+          {ing.amount} {t(`units.${ing.unit}`)}
+        </Typography>
+      </Stack>
+      <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ mt: 0.75 }}>
+        <Typography variant="body2" color="text.secondary">
+          {t("scale.scaled")}
+        </Typography>
+        <Typography fontWeight={700} color="primary.dark">
+          {ing.displayAmount} {t(`units.${ing.displayUnit}`)}
+        </Typography>
+      </Stack>
+
+      {ing.prepScaled && (
+        <Box sx={{ mt: 1.5 }}>
+          <Typography variant="caption" sx={{ color: colors.slate, fontWeight: 700, letterSpacing: "0.04em" }}>
+            {t("scale.prepIncludes")}
+          </Typography>
+          <Stack spacing={1} sx={{ mt: 1 }}>
+            {ing.prepScaled.ingredients.map((child) => (
+              <MobileIngredientBlock
+                key={child.id}
+                recipe={ing.prepScaled!}
+                ing={child}
+                lang={lang}
+                tContent={tContent}
+                depth={depth + 1}
+              />
+            ))}
+          </Stack>
+        </Box>
+      )}
+    </Box>
+  );
+}
+
+function DesktopIngredientRows({
+  recipe,
+  ing,
+  lang,
+  tContent,
+  depth,
+}: {
+  recipe: ScaledRecipe;
+  ing: ScaledIngredient;
+  lang: "en" | "ta" | "hi";
+  tContent: (text: string) => string;
+  depth: number;
+}) {
+  const { t } = useTranslation();
+  const isPrep = !!ing.prepRecipeId;
+  return (
+    <>
+      <TableRow hover sx={{ bgcolor: depth > 0 ? "rgba(13, 148, 136, 0.04)" : undefined }}>
+        <TableCell sx={{ pl: 2 + depth * 3 }}>
+          <Stack direction="row" alignItems="baseline" spacing={1}>
+            <Typography component="span" fontWeight={depth === 0 ? 600 : 500}>
+              {displayIngredientName(recipe, ing.id, ing.name, lang, tContent)}
+            </Typography>
+            {isPrep && (
+              <Typography component="span" variant="caption" sx={{ color: colors.slate, fontWeight: 600 }}>
+                {t("scale.prepLine")}
+              </Typography>
+            )}
+          </Stack>
+        </TableCell>
+        <TableCell sx={{ fontSize: "1.05rem", fontWeight: 600 }}>
+          {ing.soak && ing.soakDuration != null
+            ? `${ing.soakDuration} ${t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}`
+            : "—"}
+        </TableCell>
+        <TableCell align="right">
+          {ing.amount} {t(`units.${ing.unit}`)}
+        </TableCell>
+        <TableCell align="right" sx={{ fontWeight: 700, color: "primary.dark" }}>
+          {ing.displayAmount} {t(`units.${ing.displayUnit}`)}
+        </TableCell>
+      </TableRow>
+      {ing.prepScaled?.ingredients.map((child) => (
+        <DesktopIngredientRows
+          key={child.id}
+          recipe={ing.prepScaled!}
+          ing={child}
+          lang={lang}
+          tContent={tContent}
+          depth={depth + 1}
+        />
+      ))}
+    </>
   );
 }
 

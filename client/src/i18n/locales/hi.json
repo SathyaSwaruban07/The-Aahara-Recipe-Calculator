@@ -52,12 +52,16 @@
     "voiceSearchUnsupported": "इस ब्राउज़र में वॉइस सर्च उपलब्ध नहीं है",
     "filter": "फ़िल्टर",
     "filterByCategory": "श्रेणियाँ",
-    "filterReset": "सभी श्रेणियाँ दिखाएँ"
+    "filterReset": "सभी श्रेणियाँ दिखाएँ",
+    "prerequisites": "पूर्व तैयारी व्यंजन",
+    "prepTags": "तैयारी",
+    "scrollToPrep": "{{name}} पर जाएँ"
   },
   "categories": {
     "Breakfast": "नाश्ता",
     "Lunch": "दोपहर का खाना",
-    "Dinner": "रात का खाना"
+    "Dinner": "रात का खाना",
+    "Prerequisites": "पूर्व तैयारी व्यंजन"
   },
   "scale": {
     "title": "अनुपात मापें",
@@ -68,7 +72,9 @@
     "ingredient": "सामग्री",
     "original": "मूल",
     "scaled": "मापी गई मात्रा",
-    "back": "व्यंजन सूची पर वापस"
+    "back": "व्यंजन सूची पर वापस",
+    "prepLine": "तैयारी",
+    "prepIncludes": "शामिल"
   },
   "form": {
     "titleCreate": "व्यंजन जोड़ें",
@@ -97,6 +103,13 @@
     "amount": "मात्रा",
     "amountPlaceholder": "0",
     "unit": "इकाई",
+    "lineRaw": "कच्चा सामान",
+    "linePrep": "तैयारी व्यंजन",
+    "prepRecipe": "तैयारी व्यंजन",
+    "prepAmount": "पोर्शन",
+    "prepHint": "दूसरे व्यंजन को जोड़ें (जैसे मसाला डोसा के अंतर्गत बैटर)।",
+    "isPrerequisite": "पूर्व तैयारी व्यंजन",
+    "isPrerequisiteHint": "पूर्व तैयारी सूची में दिखेगा; मुख्य व्यंजन में टैग कर सकते हैं।",
     "save": "व्यंजन सहेजें",
     "cancel": "रद्द करें",
     "id": "व्यंजन ID",
@@ -109,7 +122,8 @@
     "kg": "किलोग्राम",
     "ml": "मिलीलीटर",
     "l": "लीटर",
-    "pieces": "टुकड़े"
+    "pieces": "टुकड़े",
+    "portions": "पोर्शन"
   },
   "common": {
     "loading": "लोड हो रहा है…",

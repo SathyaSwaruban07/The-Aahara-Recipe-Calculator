@@ -214,10 +214,11 @@ export function matchesRecipeSearch(recipe: Recipe, query: string): boolean {
 
 /** Queue every English content string on a recipe for live translation. */
 export function collectRecipeContentTexts(recipe: Recipe): string[] {
-  return [
-    recipe.name,
-    recipe.category,
-    recipe.notes || "",
-    ...recipe.ingredients.map((i) => i.name),
-  ].filter((t) => t.trim());
+  const texts: string[] = [recipe.name, recipe.category, recipe.notes || ""];
+  for (const ing of recipe.ingredients) {
+    texts.push(ing.name);
+    const nested = (ing as { prepScaled?: Recipe }).prepScaled;
+    if (nested) texts.push(...collectRecipeContentTexts(nested));
+  }
+  return texts.filter((t) => t.trim());
 }

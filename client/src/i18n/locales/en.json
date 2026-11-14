@@ -52,12 +52,16 @@
     "voiceSearchUnsupported": "Voice search is not supported in this browser",
     "filter": "Filter",
     "filterByCategory": "Categories",
-    "filterReset": "Show all categories"
+    "filterReset": "Show all categories",
+    "prerequisites": "Prerequisite Recipes",
+    "prepTags": "Uses prep",
+    "scrollToPrep": "Go to {{name}}"
   },
   "categories": {
     "Breakfast": "Breakfast",
     "Lunch": "Lunch",
-    "Dinner": "Dinner"
+    "Dinner": "Dinner",
+    "Prerequisites": "Prerequisite Recipes"
   },
   "scale": {
     "title": "Scale proportions",
@@ -68,7 +72,9 @@
     "ingredient": "Ingredient",
     "original": "Original",
     "scaled": "Scaled amount",
-    "back": "Back to recipes"
+    "back": "Back to recipes",
+    "prepLine": "Prep",
+    "prepIncludes": "Includes"
   },
   "form": {
     "titleCreate": "Add a recipe",
@@ -97,6 +103,13 @@
     "amount": "Amount",
     "amountPlaceholder": "0",
     "unit": "Unit",
+    "lineRaw": "Raw ingredient",
+    "linePrep": "Prep recipe",
+    "prepRecipe": "Prep recipe",
+    "prepAmount": "Portions of prep",
+    "prepHint": "Links a child recipe (e.g. batter under masala dosa).",
+    "isPrerequisite": "Prerequisite recipe",
+    "isPrerequisiteHint": "Shows under Prerequisite Recipes and can be tagged on parent dishes.",
     "save": "Save recipe",
     "cancel": "Cancel",
     "id": "Recipe ID",
@@ -109,7 +122,8 @@
     "kg": "kg",
     "ml": "ml",
     "l": "L",
-    "pieces": "pieces"
+    "pieces": "pieces",
+    "portions": "portions"
   },
   "common": {
     "loading": "Loading…",

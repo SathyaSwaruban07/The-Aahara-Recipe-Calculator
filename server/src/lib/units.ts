@@ -30,8 +30,8 @@ export function scaleAmount(amount: number, factor: number): number {
  * kg / L / ml: keep decimals (no whole-number rounding).
  */
 export function normalizeDisplay(amount: number, unit: Unit): { amount: number; unit: Unit } {
-  if (unit === "pieces") {
-    return { amount: roundNice(amount), unit: "pieces" };
+  if (unit === "pieces" || unit === "portions") {
+    return { amount: roundNice(amount), unit };
   }
 
   if (isMass(unit)) {

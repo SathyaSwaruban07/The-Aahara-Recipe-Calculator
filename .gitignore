@@ -4,6 +4,8 @@ build/
 .env
 .env.local
 .env.production
+data/prep-links.local.json
+data/prerequisite-flags.local.json
 client/.env.local
 client/.env.production
 *.log

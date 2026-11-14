@@ -141,3 +141,178 @@ body {
     display: none !important;
   }
 }
+
+/* Prep tags only — rotating gradient on the border ring, solid fill inside */
+@property --glow-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes prep-spin-glow {
+  to {
+    --glow-angle: 360deg;
+  }
+}
+
+.prep-tag-bloom {
+  --border-width: 1.5px;
+  --border-radius: 8px;
+  --gradient-colors: #5b8def, #8b7ec8, #c97b84, #d4a85c, #5b8def;
+
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  margin: 2px;
+  padding: 0.35em 0.85em;
+  border: none;
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: #111827;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+/* Animated border ring only — no fill */
+.prep-tag-bloom::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--border-width);
+  background: conic-gradient(from var(--glow-angle), var(--gradient-colors));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: prep-spin-glow 5s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Soft outer bloom from the border only */
+.prep-tag-bloom::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--border-width);
+  background: conic-gradient(from var(--glow-angle), var(--gradient-colors));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  filter: blur(6px);
+  opacity: 0.45;
+  z-index: -1;
+  animation: prep-spin-glow 5s linear infinite;
+  pointer-events: none;
+}
+
+.prep-tag-bloom:hover::after {
+  opacity: 0.6;
+}
+
+.prep-tag-bloom:focus-visible {
+  outline: 2px solid #1c1917;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prep-tag-bloom::before,
+  .prep-tag-bloom::after {
+    animation: none;
+    background: linear-gradient(135deg, #5b8def, #8b7ec8, #c97b84, #d4a85c);
+  }
+
+  .prep-tag-bloom::after {
+    opacity: 0.2;
+  }
+}
+
+/* Scroll-to-prep card highlight — same border bloom, exactly 2s then gone */
+@keyframes recipe-bloom-ring-fade {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes recipe-bloom-glow-fade {
+  0%,
+  70% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.recipe-scroll-bloom {
+  --border-width: 2px;
+  --border-radius: 20px;
+  --gradient-colors: #5b8def, #8b7ec8, #c97b84, #d4a85c, #5b8def;
+  position: relative;
+  z-index: 1;
+}
+
+.recipe-scroll-bloom::before,
+.recipe-scroll-bloom::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--border-width);
+  background: conic-gradient(from var(--glow-angle), var(--gradient-colors));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.recipe-scroll-bloom::before {
+  z-index: 2;
+  animation:
+    prep-spin-glow 5s linear infinite,
+    recipe-bloom-ring-fade 2s ease-out forwards;
+}
+
+.recipe-scroll-bloom::after {
+  z-index: 0;
+  filter: blur(8px);
+  animation:
+    prep-spin-glow 5s linear infinite,
+    recipe-bloom-glow-fade 2s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recipe-scroll-bloom::before,
+  .recipe-scroll-bloom::after {
+    animation: recipe-bloom-ring-fade 2s ease-out forwards;
+    background: linear-gradient(135deg, #5b8def, #8b7ec8, #c97b84, #d4a85c);
+  }
+
+  .recipe-scroll-bloom::after {
+    animation: recipe-bloom-glow-fade 2s ease-out forwards;
+  }
+}
