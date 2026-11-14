@@ -18,7 +18,7 @@ import {
   displayRecipeNotes,
 } from "../i18n/recipeDisplay";
 import { buildRecipeSpeechSegments, stopSpeaking } from "../lib/speakRecipe";
-import { colors } from "../theme";
+import { colors, notesCalloutLabelSx, notesCalloutSx } from "../theme";
 import type { Recipe } from "../types";
 import { SpeakRecipeButton } from "./SpeakRecipeButton";
 
@@ -103,31 +103,35 @@ export function QuickGlanceDialog({ recipe, open, onClose }: Props) {
       </DialogTitle>
 
       <DialogContent sx={{ px: 3, pt: 0, pb: 1 }}>
-        <Stack spacing={1.25}>
+        <Stack spacing={1.5}>
           {recipe?.ingredients.map((ing) => (
-            <Stack
-              key={ing.id}
-              direction="row"
-              alignItems="baseline"
-              justifyContent="space-between"
-              spacing={2}
-              sx={{ py: 0.25 }}
-            >
-              <Typography sx={{ color: colors.charcoal, wordBreak: "break-word", minWidth: 0 }}>
-                {displayIngredientName(recipe, ing.id, ing.name, lang, tContent)}
-                {ing.soak && ing.soakDuration != null && (
-                  <Box component="span" sx={{ color: colors.slate, fontSize: "0.9em" }}>
-                    {" · "}
-                    {t("form.soak")} {ing.soakDuration}{" "}
-                    {t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}
-                  </Box>
-                )}
-              </Typography>
-              <Typography fontWeight={700} sx={{ color: colors.charcoal, whiteSpace: "nowrap", flexShrink: 0 }}>
-                {ing.amount} {t(`units.${ing.unit}`)}
-              </Typography>
-            </Stack>
+            <Box key={ing.id}>
+              <Stack direction="row" alignItems="baseline" justifyContent="space-between" spacing={2}>
+                <Typography sx={{ color: colors.charcoal, wordBreak: "break-word", minWidth: 0, fontWeight: 600 }}>
+                  {displayIngredientName(recipe, ing.id, ing.name, lang, tContent)}
+                </Typography>
+                <Typography fontWeight={700} sx={{ color: colors.charcoal, whiteSpace: "nowrap", flexShrink: 0 }}>
+                  {ing.amount} {t(`units.${ing.unit}`)}
+                </Typography>
+              </Stack>
+              {ing.soak && ing.soakDuration != null && (
+                <Typography variant="body2" sx={{ mt: 0.35, color: colors.slate, fontWeight: 600 }}>
+                  {t("form.soak")}: {ing.soakDuration} {t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}
+                </Typography>
+              )}
+            </Box>
           ))}
+
+          {!!recipe && !!displayRecipeNotes(recipe, lang, tContent) && (
+            <Box sx={{ ...notesCalloutSx, mt: 0.5, p: 1.5 }}>
+              <Typography variant="overline" sx={{ ...notesCalloutLabelSx, mb: 0.5 }}>
+                {t("form.notes")}
+              </Typography>
+              <Typography sx={{ color: colors.charcoal, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                {displayRecipeNotes(recipe, lang, tContent)}
+              </Typography>
+            </Box>
+          )}
         </Stack>
       </DialogContent>
 

@@ -48,7 +48,7 @@ export const theme = createTheme({
       primary: colors.charcoal,
       secondary: colors.slate,
     },
-    divider: colors.borderWarm,
+    divider: "rgba(28, 25, 23, 0.08)",
   },
   typography: {
     fontFamily: googleSansStack,
@@ -122,6 +122,13 @@ export const theme = createTheme({
         root: {
           minWidth: 44,
           minHeight: 44,
+        },
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: "rgba(28, 25, 23, 0.08)",
         },
       },
     },
@@ -226,6 +233,21 @@ export const surfaceSx = {
   borderRadius: "20px",
   backdropFilter: "blur(10px)",
 } as const;
+
+/** Soft info callout for recipe notes */
+export const notesCalloutSx = {
+  bgcolor: "rgba(219, 234, 254, 0.65)",
+  border: "1px solid rgba(37, 99, 235, 0.35)",
+  borderRadius: "12px",
+} as const;
+
+export const notesCalloutLabelSx = {
+  color: "#1D4ED8",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase" as const,
+  display: "block",
+};
 
 /** Frosted glass panel (form / scale content) */
 export const frostSurfaceSx = {

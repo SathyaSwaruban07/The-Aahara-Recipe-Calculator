@@ -1,6 +1,6 @@
 {
   "app": {
-    "brand": "Recipe Proportions Calculator",
+    "brand": "Recipe Scalar",
     "tagline": "Scale kitchen recipes with precision",
     "subtitle": "Enter a dish once. Recalculate for any headcount in seconds."
   },
@@ -45,7 +45,7 @@
     "edit": "Edit",
     "delete": "Delete",
     "search": "Search recipes",
-    "searchPlaceholder": "Search in English, Tamil, or Hindi…",
+    "searchPlaceholder": "Search recipes",
     "searchClear": "Clear search",
     "voiceSearch": "Voice search",
     "voiceSearchListening": "Listening… tap to stop",
@@ -93,7 +93,7 @@
     "ingredients": "Ingredients",
     "addIngredient": "Add ingredient",
     "ingredientName": "Ingredient",
-    "ingredientPlaceholder": "e.g. Sambar Power",
+    "ingredientPlaceholder": "e.g. Sambar Powder",
     "amount": "Amount",
     "amountPlaceholder": "0",
     "unit": "Unit",

@@ -1,6 +1,6 @@
 {
   "app": {
-    "brand": "Recipe Proportions Calculator",
+    "brand": "Recipe Scalar",
     "tagline": "रसोई व्यंजनों के अनुपात सटीक मापें",
     "subtitle": "एक बार व्यंजन दर्ज करें। किसी भी संख्या के लिए सेकंडों में गणना करें।"
   },
@@ -45,7 +45,7 @@
     "edit": "संपादित करें",
     "delete": "हटाएँ",
     "search": "व्यंजन खोजें",
-    "searchPlaceholder": "अंग्रेज़ी, तमिल या हिन्दी में खोजें…",
+    "searchPlaceholder": "व्यंजन खोजें",
     "searchClear": "खोज साफ़ करें",
     "voiceSearch": "आवाज़ से खोजें",
     "voiceSearchListening": "सुन रहा है… रोकने के लिए टैप करें",

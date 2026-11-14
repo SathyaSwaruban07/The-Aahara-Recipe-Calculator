@@ -33,6 +33,8 @@ import {
   colors,
   floatingCardShadow,
   frostSurfaceSx,
+  notesCalloutLabelSx,
+  notesCalloutSx,
   primaryButtonSx,
 } from "../theme";
 import type { ScaledRecipe } from "../types";
@@ -281,7 +283,7 @@ export function ScaleView({ recipeId, onBack }: Props) {
                     {t("form.soak")}: {ing.soakDuration} {t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}
                   </Typography>
                 )}
-                <Divider sx={{ my: 1 }} />
+                <Divider sx={{ my: 1, borderColor: "rgba(28, 25, 23, 0.08)" }} />
                 <Stack direction="row" justifyContent="space-between" spacing={1}>
                   <Typography variant="body2" color="text.secondary">
                     {t("scale.original")}
@@ -346,18 +348,13 @@ export function ScaleView({ recipeId, onBack }: Props) {
         {!!data.notes && (
           <Box
             sx={{
+              ...notesCalloutSx,
               mt: 2,
               p: 2,
-              borderRadius: "12px",
-              bgcolor: "rgba(254, 226, 226, 0.55)",
-              border: "1px solid rgba(190, 18, 60, 0.45)",
               boxShadow: floatingCardShadow,
             }}
           >
-            <Typography
-              variant="overline"
-              sx={{ color: colors.deleteText, letterSpacing: "0.08em", display: "block", mb: 0.75, fontWeight: 700 }}
-            >
+            <Typography variant="overline" sx={{ ...notesCalloutLabelSx, mb: 0.75 }}>
               {t("form.notes")}
             </Typography>
             <Typography sx={{ color: colors.charcoal, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
@@ -428,7 +425,7 @@ function ScaleViewSkeleton({
                 }}
               >
                 <Skeleton variant="text" width="55%" height={24} />
-                <Divider sx={{ my: 1 }} />
+                <Divider sx={{ my: 1, borderColor: "rgba(28, 25, 23, 0.08)" }} />
                 <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.75 }}>
                   <Skeleton variant="text" width={72} height={18} />
                   <Skeleton variant="text" width={64} height={18} />

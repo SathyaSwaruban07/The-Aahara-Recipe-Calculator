@@ -27,6 +27,7 @@ import { useContentTranslation } from "./i18n/ContentTranslation";
 import { useAdminMode } from "./admin/AdminMode";
 import { FontScaleControl, TOP_CONTROL_HEIGHT } from "./components/FontScaleControl";
 import { colors } from "./theme";
+import aaharaLogo from "./assets/the-aahara-logo.png";
 
 type View =
   | { kind: "list" }
@@ -63,6 +64,10 @@ export default function App() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [view]);
 
   const onLangChange = (lng: string) => {
     void i18n.changeLanguage(lng);
@@ -102,13 +107,36 @@ export default function App() {
         <Stack spacing={{ xs: 2.5, sm: 3 }} className="rise-in">
           <Stack
             direction="row"
-            justifyContent="flex-end"
+            justifyContent="space-between"
             alignItems="center"
-            spacing={{ xs: 0.75, sm: 1.25 }}
+            spacing={{ xs: 0.5, sm: 1.25 }}
             flexWrap="nowrap"
             className="no-print"
-            sx={{ width: "100%", minWidth: 0 }}
+            sx={{ width: "100%", minWidth: 0, gap: { xs: 0.5, sm: 1.25 } }}
           >
+            <Box
+              component="img"
+              src={aaharaLogo}
+              alt="The Aahara"
+              sx={{
+                height: { xs: 52, sm: 56 },
+                width: { xs: 168, sm: "auto" },
+                maxWidth: { xs: "58vw", sm: 220 },
+                minWidth: { xs: 148, sm: 0 },
+                objectFit: "contain",
+                objectPosition: "left center",
+                flex: "0 0 auto",
+                display: "block",
+                backgroundColor: "transparent",
+              }}
+            />
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={{ xs: 0.5, sm: 1.25 }}
+              flexWrap="nowrap"
+              sx={{ minWidth: 0, flex: "1 1 auto", justifyContent: "flex-end" }}
+            >
             <FontScaleControl />
             <FormControlLabel
               control={
@@ -143,21 +171,20 @@ export default function App() {
                 m: 0,
                 mr: 0,
                 height: TOP_CONTROL_HEIGHT,
-                pl: { xs: 0.5, sm: 1 },
-                pr: { xs: 0.75, sm: 1 },
+                pl: { xs: 0.35, sm: 1 },
+                pr: { xs: 0.35, sm: 1 },
                 borderRadius: "12px",
                 bgcolor: "rgba(255,255,255,0.96)",
                 border: "1px solid #E7E5E4",
-                flexShrink: 1,
-                minWidth: 0,
+                flexShrink: 0,
                 boxSizing: "border-box",
-                "& .MuiFormControlLabel-label": { ml: 0.25 },
+                "& .MuiFormControlLabel-label": { ml: { xs: 0, sm: 0.25 } },
               }}
             />
             <FormControl
               size="small"
               sx={{
-                minWidth: { xs: 88, sm: 120 },
+                minWidth: { xs: 64, sm: 120 },
                 flexShrink: 0,
                 height: TOP_CONTROL_HEIGHT,
               }}
@@ -186,6 +213,7 @@ export default function App() {
                 <MenuItem value="hi">हिन्दी</MenuItem>
               </Select>
             </FormControl>
+            </Stack>
           </Stack>
 
           {error && (

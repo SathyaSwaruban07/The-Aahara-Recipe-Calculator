@@ -18,10 +18,17 @@ CREATE TABLE IF NOT EXISTS ingredients (
   name TEXT NOT NULL,
   amount NUMERIC NOT NULL CHECK (amount >= 0),
   unit TEXT NOT NULL CHECK (unit IN ('mg','g','kg','ml','l','pieces')),
-  sort_order INT NOT NULL DEFAULT 0
+  sort_order INT NOT NULL DEFAULT 0,
+  soak BOOLEAN NOT NULL DEFAULT FALSE,
+  soak_duration NUMERIC,
+  soak_unit TEXT CHECK (soak_unit IS NULL OR soak_unit IN ('minutes','hours'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_ingredients_recipe ON ingredients(recipe_id);
+
+ALTER TABLE ingredients ADD COLUMN IF NOT EXISTS soak BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE ingredients ADD COLUMN IF NOT EXISTS soak_duration NUMERIC;
+ALTER TABLE ingredients ADD COLUMN IF NOT EXISTS soak_unit TEXT;
 
 -- Upgrade path from v1 key-based columns (safe if columns already renamed/absent)
 DO $$ BEGIN

@@ -45,9 +45,19 @@ async function main() {
       for (let i = 0; i < recipe.ingredients.length; i++) {
         const ing = recipe.ingredients[i];
         await client.query(
-          `INSERT INTO ingredients (id, recipe_id, name, amount, unit, sort_order)
-           VALUES ($1,$2,$3,$4,$5,$6)`,
-          [ing.id, recipe.id, ing.name, ing.amount, ing.unit, i]
+          `INSERT INTO ingredients (id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+          [
+            ing.id,
+            recipe.id,
+            ing.name,
+            ing.amount,
+            ing.unit,
+            i,
+            !!ing.soak,
+            ing.soak ? ing.soakDuration ?? null : null,
+            ing.soak ? ing.soakUnit || "minutes" : null,
+          ]
         );
       }
     }

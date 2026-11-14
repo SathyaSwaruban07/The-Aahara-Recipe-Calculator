@@ -1,6 +1,6 @@
 {
   "app": {
-    "brand": "Recipe Proportions Calculator",
+    "brand": "Recipe Scalar",
     "tagline": "சமையலறை சமையல் விகிதங்களை துல்லியமாக அளவிடுங்கள்",
     "subtitle": "ஒரு முறை உணவை உள்ளிடுங்கள். எந்த எண்ணிக்கைக்கும் விநாடிகளில் மறுகணக்கிடுங்கள்."
   },
@@ -45,7 +45,7 @@
     "edit": "திருத்து",
     "delete": "நீக்கு",
     "search": "சமையல் தேடு",
-    "searchPlaceholder": "ஆங்கிலம், தமிழ் அல்லது இந்தியில் தேடுங்கள்…",
+    "searchPlaceholder": "சமையல் தேடு",
     "searchClear": "தேடலை அழி",
     "voiceSearch": "குரல் தேடல்",
     "voiceSearchListening": "கேட்கிறது… நிறுத்த தட்டவும்",

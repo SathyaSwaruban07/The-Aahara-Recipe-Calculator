@@ -46,6 +46,8 @@ import {
   editButtonSx,
   floatingCardShadow,
   floatingCardShadowHover,
+  notesCalloutLabelSx,
+  notesCalloutSx,
   primaryButtonSx,
   surfaceSx,
 } from "../theme";
@@ -537,8 +539,8 @@ export function RecipeList({ recipes, loading, onAdd, onScale, onEdit, onDelete 
                   overflowWrap: "anywhere",
                   wordBreak: "break-word",
                   backgroundImage:
-                    "linear-gradient(90deg, #2563EB 0%, #7C3AED 55%, #A855F7 100%)",
-                  backgroundSize: "100% 2.5px",
+                    "linear-gradient(90deg, rgba(37, 99, 235, 0.35) 0%, rgba(124, 58, 237, 0.28) 55%, rgba(168, 85, 247, 0.22) 100%)",
+                  backgroundSize: "100% 2px",
                   backgroundRepeat: "no-repeat",
                   backgroundPosition: "bottom",
                 }}
@@ -764,6 +766,24 @@ export function RecipeList({ recipes, loading, onAdd, onScale, onEdit, onDelete 
                         </>
                       )}
                     </Stack>
+
+                    {!!displayRecipeNotes(recipe, lang, tContent) && (
+                      <Box
+                        sx={{
+                          ...notesCalloutSx,
+                          gridColumn: "1 / -1",
+                          p: 1.25,
+                          width: "100%",
+                        }}
+                      >
+                        <Typography variant="caption" sx={{ ...notesCalloutLabelSx, mb: 0.35 }}>
+                          {t("form.notes")}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: colors.charcoal, whiteSpace: "pre-wrap" }}>
+                          {displayRecipeNotes(recipe, lang, tContent)}
+                        </Typography>
+                      </Box>
+                    )}
                   </Box>
                 ))}
               </Stack>

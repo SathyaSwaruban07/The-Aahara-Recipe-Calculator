@@ -25,9 +25,20 @@ import {
   deleteButtonSx,
   floatingCardShadow,
   frostSurfaceSx,
+  notesCalloutLabelSx,
+  notesCalloutSx,
   primaryButtonSx,
   softControlShadow,
 } from "../theme";
+
+const formCardSx = {
+  p: { xs: 1.5, sm: 2 },
+  borderRadius: "12px",
+  bgcolor: "rgba(255, 255, 255, 0.45)",
+  backdropFilter: "blur(8px)",
+  border: "1px solid rgba(255, 255, 255, 0.55)",
+  boxShadow: softControlShadow,
+} as const;
 import {
   MEAL_CATEGORIES,
   type Ingredient,
@@ -189,16 +200,7 @@ export function RecipeForm({ initial, onCancel, onSaved }: Props) {
         {isEdit ? t("form.titleEdit") : t("form.titleCreate")}
       </Typography>
 
-      <Box
-        sx={{
-          mb: 2.5,
-          p: { xs: 1.5, sm: 2 },
-          borderRadius: "14px",
-          border: `1px solid ${colors.borderWarm}`,
-          background:
-            "linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(124, 58, 237, 0.08) 100%)",
-        }}
-      >
+      <Box sx={{ ...formCardSx, mb: 2.5 }}>
         <Typography
           variant="overline"
           sx={{ color: colors.slate, letterSpacing: "0.08em", display: "block", mb: 0.75 }}
@@ -221,22 +223,10 @@ export function RecipeForm({ initial, onCancel, onSaved }: Props) {
         <Stack spacing={0.75} sx={{ mt: 1.5 }}>
           {namedIngredients.length > 0 ? (
             namedIngredients.map((ing) => (
-                <Stack
-                  key={ing.id}
-                  direction="row"
-                  justifyContent="space-between"
-                  spacing={1.5}
-                  alignItems="baseline"
-                >
+              <Box key={ing.id}>
+                <Stack direction="row" justifyContent="space-between" spacing={1.5} alignItems="baseline">
                   <Typography variant="body2" sx={{ color: colors.charcoal, fontWeight: 600, minWidth: 0 }}>
                     {ing.name.trim()}
-                    {ing.soak && ing.soakDuration !== "" && ing.soakDuration != null ? (
-                      <Box component="span" sx={{ color: colors.slate, fontWeight: 500 }}>
-                        {" · "}
-                        {t("form.soak")} {ing.soakDuration}{" "}
-                        {t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}
-                      </Box>
-                    ) : null}
                   </Typography>
                   <Typography
                     variant="body2"
@@ -245,100 +235,110 @@ export function RecipeForm({ initial, onCancel, onSaved }: Props) {
                     {ing.amount === "" ? "—" : ing.amount} {t(`units.${ing.unit}`)}
                   </Typography>
                 </Stack>
-              ))
+                {ing.soak && ing.soakDuration !== "" && ing.soakDuration != null ? (
+                  <Typography variant="body2" sx={{ mt: 0.25, color: colors.slate, fontWeight: 600 }}>
+                    {t("form.soak")}: {ing.soakDuration} {t(`form.soakUnits.${ing.soakUnit || "minutes"}`)}
+                  </Typography>
+                ) : null}
+              </Box>
+            ))
           ) : (
             <Typography variant="body2" sx={{ color: colors.slate }}>
               {t("form.summaryEmpty")}
             </Typography>
           )}
         </Stack>
+        {!!form.notes?.trim() && (
+          <Box sx={{ ...notesCalloutSx, mt: 1.5, p: 1.25 }}>
+            <Typography variant="caption" sx={{ ...notesCalloutLabelSx, mb: 0.35 }}>
+              {t("form.notes")}
+            </Typography>
+            <Typography variant="body2" sx={{ color: colors.charcoal, whiteSpace: "pre-wrap" }}>
+              {form.notes.trim()}
+            </Typography>
+          </Box>
+        )}
       </Box>
 
       <Stack spacing={2}>
-        <TextField
-          label={t("form.name")}
-          placeholder={t("form.namePlaceholder")}
-          value={form.name}
-          onChange={(e) => {
-            const name = e.target.value;
-            setForm((p) => ({
-              ...p,
-              name,
-              id: !idTouched ? slugify(name) : p.id,
-            }));
-          }}
-          required
-          InputLabelProps={{ shrink: true }}
-        />
+        <Box sx={formCardSx}>
+          <Stack spacing={2}>
+            <TextField
+              label={t("form.name")}
+              placeholder={t("form.namePlaceholder")}
+              value={form.name}
+              onChange={(e) => {
+                const name = e.target.value;
+                setForm((p) => ({
+                  ...p,
+                  name,
+                  id: !idTouched ? slugify(name) : p.id,
+                }));
+              }}
+              required
+              InputLabelProps={{ shrink: true }}
+            />
 
-        <TextField
-          label={t("form.id")}
-          placeholder={t("form.idPlaceholder")}
-          value={form.id}
-          disabled={isEdit}
-          onChange={(e) => {
-            setIdTouched(true);
-            setForm((p) => ({
-              ...p,
-              id: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
-            }));
-          }}
-          helperText={isEdit ? undefined : t("form.idPlaceholder")}
-          InputLabelProps={{ shrink: true }}
-        />
+            <TextField
+              label={t("form.id")}
+              placeholder={t("form.idPlaceholder")}
+              value={form.id}
+              disabled={isEdit}
+              onChange={(e) => {
+                setIdTouched(true);
+                setForm((p) => ({
+                  ...p,
+                  id: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+                }));
+              }}
+              helperText={isEdit ? undefined : t("form.idPlaceholder")}
+              InputLabelProps={{ shrink: true }}
+            />
 
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-          <TextField
-            select
-            label={t("form.category")}
-            value={(MEAL_CATEGORIES.includes(form.category as MealCategory)
-              ? form.category
-              : "Lunch") as MealCategory}
-            onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
-            InputLabelProps={{ shrink: true }}
-          >
-            {MEAL_CATEGORIES.map((c) => (
-              <MenuItem key={c} value={c}>
-                {t(`categories.${c}`)}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            label={t("form.baseServings")}
-            placeholder={t("form.baseServingsPlaceholder")}
-            type="number"
-            value={numberInputValue(form.baseServings)}
-            onChange={(e) => setForm((p) => ({ ...p, baseServings: parseNumberInput(e.target.value) }))}
-            inputProps={{ min: 1, inputMode: "numeric" }}
-            sx={{ maxWidth: { sm: 240 } }}
-            required
-            InputLabelProps={{ shrink: true }}
-          />
-        </Stack>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <TextField
+                select
+                label={t("form.category")}
+                value={(MEAL_CATEGORIES.includes(form.category as MealCategory)
+                  ? form.category
+                  : "Lunch") as MealCategory}
+                onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
+                InputLabelProps={{ shrink: true }}
+              >
+                {MEAL_CATEGORIES.map((c) => (
+                  <MenuItem key={c} value={c}>
+                    {t(`categories.${c}`)}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                label={t("form.baseServings")}
+                placeholder={t("form.baseServingsPlaceholder")}
+                type="number"
+                value={numberInputValue(form.baseServings)}
+                onChange={(e) => setForm((p) => ({ ...p, baseServings: parseNumberInput(e.target.value) }))}
+                inputProps={{ min: 1, inputMode: "numeric" }}
+                sx={{ maxWidth: { sm: 240 } }}
+                required
+                InputLabelProps={{ shrink: true }}
+              />
+            </Stack>
 
-        <TextField
-          label={t("form.notes")}
-          placeholder={t("form.notesPlaceholder")}
-          value={form.notes || ""}
-          onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
-          multiline
-          minRows={2}
-          InputLabelProps={{ shrink: true }}
-        />
+            <TextField
+              label={t("form.notes")}
+              placeholder={t("form.notesPlaceholder")}
+              value={form.notes || ""}
+              onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
+              multiline
+              minRows={2}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Stack>
+        </Box>
 
         <Typography variant="h6">{t("form.ingredients")}</Typography>
         {form.ingredients.map((ing, index) => (
-          <Box
-            key={ing.id}
-            sx={{
-              p: 1.5,
-              borderRadius: "12px",
-              bgcolor: "rgba(255, 255, 255, 0.45)",
-              backdropFilter: "blur(8px)",
-              border: "1px solid rgba(255, 255, 255, 0.55)",
-              boxShadow: softControlShadow,
-            }}
-          >
+          <Box key={ing.id} sx={formCardSx}>
             <Stack spacing={1.5}>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
                 <TextField

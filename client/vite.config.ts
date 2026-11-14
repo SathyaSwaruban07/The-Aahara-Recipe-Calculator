@@ -7,13 +7,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["icons/icon-192.png", "icons/icon-512.png"],
+      includeAssets: ["icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"],
       manifest: {
-        name: "Recipe Proportions Calculator",
-        short_name: "Recipe Scale",
+        name: "Recipe Scalar",
+        short_name: "Recipe Scalar",
         description: "Scale restaurant recipes by servings — English, Tamil, Hindi",
-        theme_color: "#1C1917",
-        background_color: "#F3EEF8",
+        theme_color: "#004D4D",
+        background_color: "#004D4D",
         display: "standalone",
         orientation: "portrait-primary",
         start_url: "./",

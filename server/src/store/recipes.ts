@@ -57,7 +57,7 @@ async function listFromDb(): Promise<Recipe[]> {
      FROM recipes ORDER BY id`
   );
   const ingredientsRes = await pool.query(
-    `SELECT id, recipe_id, name, amount, unit, sort_order
+    `SELECT id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit
      FROM ingredients ORDER BY recipe_id, sort_order`
   );
 
@@ -69,6 +69,9 @@ async function listFromDb(): Promise<Recipe[]> {
       name: row.name,
       amount: Number(row.amount),
       unit: row.unit as Unit,
+      soak: !!row.soak || undefined,
+      soakDuration: row.soak_duration != null ? Number(row.soak_duration) : undefined,
+      soakUnit: row.soak_unit === "hours" || row.soak_unit === "minutes" ? row.soak_unit : undefined,
     });
     byRecipe.set(row.recipe_id, list);
   }
@@ -98,7 +101,7 @@ async function getFromDb(id: string): Promise<Recipe | null> {
   if (!recipesRes.rows[0]) return null;
   const row = recipesRes.rows[0];
   const ingredientsRes = await pool.query(
-    `SELECT id, recipe_id, name, amount, unit, sort_order
+    `SELECT id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit
      FROM ingredients WHERE recipe_id = $1 ORDER BY sort_order`,
     [id]
   );
@@ -113,6 +116,9 @@ async function getFromDb(id: string): Promise<Recipe | null> {
       name: ing.name,
       amount: Number(ing.amount),
       unit: ing.unit as Unit,
+      soak: !!ing.soak || undefined,
+      soakDuration: ing.soak_duration != null ? Number(ing.soak_duration) : undefined,
+      soakUnit: ing.soak_unit === "hours" || ing.soak_unit === "minutes" ? ing.soak_unit : undefined,
     })),
   };
 }
@@ -143,9 +149,19 @@ export async function upsertRecipe(recipe: Recipe): Promise<Recipe> {
     for (let i = 0; i < parsed.ingredients.length; i++) {
       const ing = parsed.ingredients[i];
       await client.query(
-        `INSERT INTO ingredients (id, recipe_id, name, amount, unit, sort_order)
-         VALUES ($1,$2,$3,$4,$5,$6)`,
-        [ing.id, parsed.id, ing.name, ing.amount, ing.unit, i]
+        `INSERT INTO ingredients (id, recipe_id, name, amount, unit, sort_order, soak, soak_duration, soak_unit)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [
+          ing.id,
+          parsed.id,
+          ing.name,
+          ing.amount,
+          ing.unit,
+          i,
+          !!ing.soak,
+          ing.soak ? ing.soakDuration ?? null : null,
+          ing.soak ? ing.soakUnit || "minutes" : null,
+        ]
       );
     }
     await client.query("COMMIT");
